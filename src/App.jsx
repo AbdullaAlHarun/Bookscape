@@ -1,16 +1,17 @@
-import './App.css'
+import { Routes, Route } from 'react-router-dom';
+import MainLayout from './layouts/MainLayout';
+import CustomerDashboard from './pages/customer/CustomerDashboard';
+import ManagerDashboard from './pages/manager/ManagerDashboard';
 
 function App() {
-  
-
   return (
-    <>
-      <h1 class="text-3xl text-red-500 font-bold underline">
-    Hello world!
-  </h1>
-  
-    </>
-  )
+    <Routes>
+      <Route path="/" element={<MainLayout />}>
+        <Route path="customer" element={<CustomerDashboard />} />
+        <Route path="manager" element={<ManagerDashboard />} />
+      </Route>
+    </Routes>
+  );
 }
 
-export default App
+export default App;
