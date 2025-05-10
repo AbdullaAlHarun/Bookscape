@@ -1,89 +1,85 @@
 import { useState } from "react";
+import { loginUser } from "../../services/authService";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const isNoroffEmail = email.toLowerCase().endsWith("@stud.noroff.no");
-
     if (!isNoroffEmail) {
       setError("Only @stud.noroff.no emails are allowed.");
       return;
     }
 
-    setError("");
-    console.log("Logging in:", email, password);
-
-    // TODO: Add API logic here
+    try {
+      const userData = await loginUser({ email, password });
+      localStorage.setItem("user", JSON.stringify(userData));
+      setError("");
+      navigate("/"); // or redirect based on role
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-white text-black px-4">
-      <section
-        className="w-full max-w-md p-6 border border-black rounded-lg shadow-md"
-        aria-label="Login panel"
+    <main className="min-h-screen flex items-center justify-center bg-white px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md p-8 border rounded-lg shadow-md"
+        aria-label="Login form"
       >
         <h1 className="text-2xl font-bold mb-6 text-center">Login to BookScape</h1>
 
+        <label htmlFor="email" className="block mb-2 font-medium">
+          Email address
+        </label>
+        <input
+          id="email"
+          type="email"
+          value={email}
+          required
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-black"
+          aria-describedby="emailHelp"
+        />
+        <p id="emailHelp" className="text-sm text-gray-500 mb-4">
+          Use your <strong>@stud.noroff.no</strong> email
+        </p>
+
+        <label htmlFor="password" className="block mb-2 font-medium">
+          Password
+        </label>
+        <input
+          id="password"
+          type="password"
+          value={password}
+          required
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-black"
+        />
+
         {error && (
           <div
-            className="bg-red-100 text-red-800 border border-red-400 p-2 rounded text-sm mb-4"
+            className="mt-4 text-red-600 text-sm bg-red-50 border border-red-200 p-2 rounded"
             role="alert"
-            aria-live="assertive"
           >
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5" aria-label="Login form">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
-              Email address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              autoComplete="email"
-              className="w-full px-3 py-2 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              aria-describedby="email-help"
-            />
-            <p id="email-help" className="text-xs text-gray-600 mt-1">
-              Use your <strong>@stud.noroff.no</strong> email
-            </p>
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              required
-              autoComplete="current-password"
-              className="w-full px-3 py-2 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-black text-white py-2 px-4 rounded-md font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-          >
-            Log In
-          </button>
-        </form>
-      </section>
+        <button
+          type="submit"
+          className="w-full mt-6 bg-black text-white p-2 rounded hover:bg-gray-800 transition"
+        >
+          Log In
+        </button>
+      </form>
     </main>
   );
 };
