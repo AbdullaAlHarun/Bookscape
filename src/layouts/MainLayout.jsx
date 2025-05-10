@@ -1,15 +1,14 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from "react-router-dom";
+import Navbar from "../components/common/Navbar";
 
 const MainLayout = () => {
   return (
-    <div className="p-4">
-      <nav className="flex gap-4 mb-4">
-        <Link to="/customer">Customer Dashboard</Link>
-        <Link to="/manager">Manager Dashboard</Link>
-      </nav>
-      <hr />
-      <Outlet />
-    </div>
+    <>
+      <Navbar />
+      <main className="max-w-7xl mx-auto p-4">
+        <Outlet />
+      </main>
+    </>
   );
 };
 
