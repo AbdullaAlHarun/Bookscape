@@ -4,6 +4,9 @@ import CustomerDashboard from './pages/customer/CustomerDashboard';
 import ManagerDashboard from './pages/manager/ManagerDashboard';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import Home from './pages/public/Home';
+import './index.css';
+
 
 function App() {
   return (
@@ -14,8 +17,10 @@ function App() {
 
       {/* All other routes within layout */}
       <Route path="/" element={<MainLayout />}>
+        <Route index element={<Home />} />
         <Route path="customer" element={<CustomerDashboard />} />
         <Route path="manager" element={<ManagerDashboard />} />
+        <Route path="home" element={<Home />} />
       </Route>
     </Routes>
   );
