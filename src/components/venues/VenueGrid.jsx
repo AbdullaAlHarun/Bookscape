@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import VenueCard from "./VenueCard";
+import VenueCardSkeleton from "./VenueCardSkeleton";
 import { getAllVenues } from "../../services/venueService";
 
 const VenueGrid = () => {
@@ -21,19 +22,20 @@ const VenueGrid = () => {
     loadVenues();
   }, []);
 
-  if (loading) {
-    return <p className="text-center py-8" role="status">Loading venues...</p>;
-  }
-
   return (
     <section
       aria-labelledby="venue-grid-heading"
-      className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8" 
+      className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8"
     >
       <h2 id="venue-grid-heading" className="sr-only">Venue Listings</h2>
-      {venues.map((venue) => (
-        <VenueCard key={venue.id} venue={venue} />
-      ))}
+
+      {loading
+        ? Array.from({ length: 8 }).map((_, index) => (
+            <VenueCardSkeleton key={index} />
+          ))
+        : venues.map((venue) => (
+            <VenueCard key={venue.id} venue={venue} />
+          ))}
     </section>
   );
 };
