@@ -8,7 +8,9 @@ import Home from './pages/public/Home';
 import VenueDetailPage from "./pages/venues/[id]";
 import CustomerRoute from './routes/CustomerRoute';
 import ManagerRoute from './routes/ManagerRoute';
-import NotFound from './pages/public/NotFound'; 
+import ProtectedRoute from './routes/ProtectedRoute'; // ✅ Required for /profile
+import NotFound from './pages/public/NotFound';
+import ProfileDashboard from './pages/profile/ProfileDashboard';
 import './index.css';
 
 function App() {
@@ -39,6 +41,14 @@ function App() {
             <ManagerRoute>
               <ManagerDashboard />
             </ManagerRoute>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute>
+              <ProfileDashboard />
+            </ProtectedRoute>
           }
         />
       </Route>
