@@ -13,3 +13,13 @@ export const getAllVenues = async (page = 1, limit = 8) => {
     totalCount: json.meta.totalCount,
   };
 };
+
+// ✅ New function for venue details
+export const getVenueById = async (id) => {
+  const res = await fetch(`${API_BASE}/holidaze/venues/${id}`);
+  if (!res.ok) {
+    throw new Error("Failed to fetch venue details");
+  }
+  const json = await res.json();
+  return json.data;
+};
