@@ -5,26 +5,46 @@ import ManagerDashboard from './pages/manager/ManagerDashboard';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Home from './pages/public/Home';
+import VenueDetailPage from "./pages/venues/[id]";
+import CustomerRoute from './routes/CustomerRoute';
+import ManagerRoute from './routes/ManagerRoute';
+import NotFound from './pages/public/NotFound'; 
 import './index.css';
-import VenueDetailPage from "./pages/venues/[id]"; 
-
 
 function App() {
   return (
     <Routes>
-      {/* Public Auth Route without layout */}
+      {/* Public Routes (no layout) */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* All other routes within layout */}
+      {/* Routes with Main Layout */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
-        <Route path="customer" element={<CustomerDashboard />} />
-        <Route path="manager" element={<ManagerDashboard />} />
         <Route path="home" element={<Home />} />
         <Route path="/venues/:id" element={<VenueDetailPage />} />
-        
+
+        {/* ✅ Role-based protected routes */}
+        <Route
+          path="customer"
+          element={
+            <CustomerRoute>
+              <CustomerDashboard />
+            </CustomerRoute>
+          }
+        />
+        <Route
+          path="manager"
+          element={
+            <ManagerRoute>
+              <ManagerDashboard />
+            </ManagerRoute>
+          }
+        />
       </Route>
+
+      {/* ✅ 404 fallback route (MUST be last) */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

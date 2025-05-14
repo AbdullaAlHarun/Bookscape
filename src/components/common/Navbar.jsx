@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FiMenu, FiX, FiUser } from "react-icons/fi";
+import { useAuth } from "../../context/AuthContext";
 
 const navLinks = [
   { name: "Browse Venues", path: "/venues" },
@@ -8,23 +9,28 @@ const navLinks = [
   { name: "Support", path: "/support" },
 ];
 
-const isLoggedIn = false;
-const user = { name: "Abdul", avatar: "https://i.pravatar.cc/40" };
-
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const { isAuthenticated, user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
+    setProfileOpen(false);
+    navigate("/login");
+  };
 
   return (
     <header className="bg-[#fff8f4] shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <Link to="/" className="text-2xl font-bold text-[#1e1e1e]">
             Book<span className="italic text-[#ff4123]">Scape</span>
           </Link>
 
-          {/* Desktop Nav */}
           <nav className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => (
               <NavLink
@@ -42,15 +48,18 @@ export default function Navbar() {
               </NavLink>
             ))}
 
-            {/* Profile Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
                 className="flex items-center gap-2 focus:outline-none"
               >
-                {isLoggedIn ? (
+                {isAuthenticated ? (
                   <>
-                    <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full" />
+                    <img
+                      src={user?.avatar?.url || "https://i.pravatar.cc/40"}
+                      alt="Avatar"
+                      className="w-8 h-8 rounded-full"
+                    />
                     <span className="text-sm text-[#1e1e1e]">{user.name}</span>
                   </>
                 ) : (
@@ -63,7 +72,7 @@ export default function Navbar() {
 
               {profileOpen && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border shadow rounded py-2 z-50">
-                  {!isLoggedIn ? (
+                  {!isAuthenticated ? (
                     <>
                       <Link
                         to="/login"
@@ -87,6 +96,7 @@ export default function Navbar() {
                         Profile
                       </Link>
                       <button
+                        onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-[#fff0eb]"
                       >
                         Logout
@@ -98,7 +108,6 @@ export default function Navbar() {
             </div>
           </nav>
 
-          {/* Mobile Toggle */}
           <button
             className="md:hidden text-2xl text-[#ff4123]"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -109,7 +118,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden bg-[#fff8f4] px-6 pb-6 pt-2 shadow">
           <div className="flex flex-col space-y-3">
@@ -125,7 +134,7 @@ export default function Navbar() {
             ))}
 
             <div className="border-t pt-3 space-y-2">
-              {!isLoggedIn ? (
+              {!isAuthenticated ? (
                 <>
                   <Link
                     to="/login"
@@ -153,7 +162,7 @@ export default function Navbar() {
                   </Link>
                   <button
                     className="block w-full text-left px-4 py-2 text-sm hover:bg-[#fff0eb]"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={handleLogout}
                   >
                     Logout
                   </button>
