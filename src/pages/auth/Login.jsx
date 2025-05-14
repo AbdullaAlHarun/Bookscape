@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { loginUser } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,9 +22,15 @@ const Login = () => {
 
     try {
       const userData = await loginUser({ email, password });
-      localStorage.setItem("user", JSON.stringify(userData));
+      login(userData); // ✅ set user in context + localStorage
       setError("");
-      navigate("/"); // or redirect based on role
+
+      // Optional: Redirect based on role
+      if (userData.venueManager) {
+        navigate("/manager");
+      } else {
+        navigate("/customer");
+      }
     } catch (err) {
       setError(err.message);
     }
