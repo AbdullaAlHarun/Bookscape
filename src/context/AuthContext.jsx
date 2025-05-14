@@ -4,7 +4,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // ✅ loading flag
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("user");
       }
     }
-    setLoading(false); // ✅ done loading
+    setLoading(false); 
   }, []);
 
   const login = (userData) => {
@@ -28,6 +28,16 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // ✅ New: Update Avatar in context + storage
+  const updateAvatar = (newAvatar) => {
+    const updatedUser = {
+      ...user,
+      avatar: newAvatar
+    };
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  };
+
   const isAuthenticated = !!user;
   const isVenueManager = user?.venueManager === true;
   const isCustomer = user && !user.venueManager;
@@ -38,10 +48,11 @@ export const AuthProvider = ({ children }) => {
         user,
         login,
         logout,
+        updateAvatar, // ✅ exposed
         isAuthenticated,
         isVenueManager,
         isCustomer,
-        loading, // ✅ expose loading flag
+        loading,
       }}
     >
       {children}
