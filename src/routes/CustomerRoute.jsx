@@ -2,15 +2,12 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function CustomerRoute({ children }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isCustomer, loading } = useAuth();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  if (loading) return null;
 
-  if (user?.venueManager) {
-    return <Navigate to="/manager" replace />;
-  }
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isCustomer) return <Navigate to="/manager" replace />;
 
   return children;
 }

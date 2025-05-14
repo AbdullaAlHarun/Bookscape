@@ -4,13 +4,18 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // ✅ loading flag
 
-  // Load user from localStorage on init
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        localStorage.removeItem("user");
+      }
     }
+    setLoading(false); // ✅ done loading
   }, []);
 
   const login = (userData) => {
@@ -29,12 +34,19 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, isAuthenticated, isVenueManager, isCustomer }}
+      value={{
+        user,
+        login,
+        logout,
+        isAuthenticated,
+        isVenueManager,
+        isCustomer,
+        loading, // ✅ expose loading flag
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Hook to use auth context
 export const useAuth = () => useContext(AuthContext);
