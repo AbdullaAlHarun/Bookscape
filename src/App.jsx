@@ -6,7 +6,8 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Home from './pages/public/Home';
 import VenueDetailPage from "./pages/venues/[id]";
-import ProtectedRoute from './routes/ProtectedRoute'; 
+import CustomerRoute from './routes/CustomerRoute';
+import ManagerRoute from './routes/ManagerRoute';
 import './index.css';
 
 function App() {
@@ -16,27 +17,27 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* Protected Layout Routes */}
+      {/* Routes with Main Layout */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="home" element={<Home />} />
         <Route path="/venues/:id" element={<VenueDetailPage />} />
 
-        {/* ✅ Protected routes */}
+        {/* ✅ Role-based protected routes */}
         <Route
           path="customer"
           element={
-            <ProtectedRoute>
+            <CustomerRoute>
               <CustomerDashboard />
-            </ProtectedRoute>
+            </CustomerRoute>
           }
         />
         <Route
           path="manager"
           element={
-            <ProtectedRoute>
+            <ManagerRoute>
               <ManagerDashboard />
-            </ProtectedRoute>
+            </ManagerRoute>
           }
         />
       </Route>
