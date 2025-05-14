@@ -8,6 +8,7 @@ import Home from './pages/public/Home';
 import VenueDetailPage from "./pages/venues/[id]";
 import CustomerRoute from './routes/CustomerRoute';
 import ManagerRoute from './routes/ManagerRoute';
+import NotFound from './pages/public/NotFound'; 
 import './index.css';
 
 function App() {
@@ -41,6 +42,9 @@ function App() {
           }
         />
       </Route>
+
+      {/* ✅ 404 fallback route (MUST be last) */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
