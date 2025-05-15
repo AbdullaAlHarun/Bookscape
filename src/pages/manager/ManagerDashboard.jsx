@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { getVenuesByProfile } from "../../services/venueService";
+import { getVenuesByProfile, deleteVenue } from "../../services/venueService";
 import VenueCard from "../../components/venues/VenueCard";
 
 export default function ManagerDashboard() {
@@ -27,6 +27,18 @@ export default function ManagerDashboard() {
 
     fetchVenues();
   }, [user, authLoading]);
+
+
+  const handleDelete = async (id) => {
+    if (!confirm("Are you sure you want to delete this venue?")) return;
+
+    try {
+      await deleteVenue(id, user.accessToken, import.meta.env.VITE_API_KEY);
+      setVenues((prev) => prev.filter((v) => v.id !== id));
+    } catch (err) {
+      alert("❌ Error deleting venue: " + err.message);
+    }
+  };
 
   if (authLoading || loading) {
     return <p className="text-center py-8">Loading your venues...</p>;
@@ -55,7 +67,7 @@ export default function ManagerDashboard() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {venues.map((venue) => (
-            <VenueCard key={venue.id} venue={venue} />
+            <VenueCard key={venue.id} venue={venue} onDelete={handleDelete} />
           ))}
         </div>
       )}

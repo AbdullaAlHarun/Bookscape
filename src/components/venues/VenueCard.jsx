@@ -27,7 +27,7 @@ const VenueCard = ({ venue, onDelete }) => {
     owner,
   } = venue;
 
-  const hasImage = media?.length > 0 && media[0]?.url;
+  const hasImage = media?.[0]?.url;
   const imageUrl = hasImage ? media[0].url : placeholderImage;
   const imageAlt = hasImage
     ? media[0]?.alt || `${name} venue`
@@ -37,7 +37,12 @@ const VenueCard = ({ venue, onDelete }) => {
   const isOwner = user?.name === owner?.name;
 
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-200 overflow-hidden flex flex-col relative">
+    <div
+      className="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-200 overflow-hidden flex flex-col relative"
+      role="region"
+      aria-label={`Venue card for ${name}`}
+    >
+      {/* Venue image */}
       <img
         src={imageUrl}
         alt={imageAlt}
@@ -45,6 +50,7 @@ const VenueCard = ({ venue, onDelete }) => {
         loading="lazy"
       />
 
+      {/* "NEW" badge */}
       {isNew && (
         <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
           NEW
@@ -52,21 +58,26 @@ const VenueCard = ({ venue, onDelete }) => {
       )}
 
       <div className="p-4 flex-1 flex flex-col justify-between gap-2">
-        {/* Title links to venue detail */}
+        {/* Title */}
         <h3 className="text-lg font-semibold text-gray-800 line-clamp-1 hover:underline">
           <Link to={`/venues/${id}`}>{name}</Link>
         </h3>
+
+        {/* Location */}
         <p className="text-sm text-gray-500 line-clamp-1">
           {location?.city}, {location?.country}
         </p>
 
+        {/* Guests + Rating */}
         <div className="flex justify-between items-center text-sm text-gray-700 mt-2">
           <span>👥 {maxGuests} guests</span>
           <span className="flex items-center gap-1">
-            <FaStar className="text-yellow-400" /> {rating ?? 0}
+            <FaStar className="text-yellow-400" />
+            {rating ?? 0}
           </span>
         </div>
 
+        {/* Amenities */}
         <div className="flex gap-3 mt-3 text-gray-600 text-base">
           {meta?.wifi && <FaWifi title="WiFi" />}
           {meta?.parking && <FaParking title="Parking" />}
@@ -74,24 +85,27 @@ const VenueCard = ({ venue, onDelete }) => {
           {meta?.breakfast && <FaCoffee title="Breakfast included" />}
         </div>
 
+        {/* Price */}
         <div className="text-right mt-4">
           <p className="text-base font-bold text-gray-900">
             From ${price} <span className="text-sm font-normal">/ night</span>
           </p>
         </div>
 
-        {/* Action buttons if owner */}
+        {/* Action Buttons for Owner */}
         {isVenueManager && isOwner && (
           <div className="mt-4 flex justify-between gap-2">
             <button
               onClick={() => navigate(`/manager/edit/${id}`)}
               className="text-sm text-blue-600 hover:underline"
+              aria-label={`Edit venue ${name}`}
             >
               ✏️ Edit
             </button>
             <button
               onClick={() => onDelete?.(id)}
               className="text-sm text-red-600 hover:underline"
+              aria-label={`Delete venue ${name}`}
             >
               🗑 Delete
             </button>
