@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getVenuesByProfile } from "../../services/venueService";
-import VenueCard from "../../components/venues/VenueCard"; 
+import VenueCard from "../../components/venues/VenueCard";
 
 export default function ManagerDashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -37,12 +38,20 @@ export default function ManagerDashboard() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">
-        Your Venues ({venues.length})
-      </h1>
+      <section className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">
+          Your Venues ({venues.length})
+        </h1>
+        <Link
+          to="/manager/create"
+          className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
+        >
+          + Create New Venue
+        </Link>
+      </section>
 
       {venues.length === 0 ? (
-        <p>You haven’t created any venues yet.</p>
+        <p className="text-gray-600">You haven’t created any venues yet.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {venues.map((venue) => (
