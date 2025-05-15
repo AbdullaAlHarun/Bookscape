@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   FaWifi,
   FaParking,
@@ -36,11 +36,20 @@ const VenueCard = ({ venue, onDelete }) => {
   const isNew = new Date() - new Date(created) < 1000 * 60 * 60 * 24 * 30;
   const isOwner = user?.name === owner?.name;
 
+  const handleCardClick = (e) => {
+    // prevent navigation from Edit/Delete buttons
+    if (e.target.closest("button")) return;
+    navigate(`/venues/${id}`);
+  };
+
   return (
     <div
-      className="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-200 overflow-hidden flex flex-col relative"
-      role="region"
-      aria-label={`Venue card for ${name}`}
+      onClick={handleCardClick}
+      className="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-200 overflow-hidden flex flex-col relative cursor-pointer"
+      role="button"
+      aria-label={`Open venue details for ${name}`}
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && handleCardClick(e)}
     >
       {/* Venue image */}
       <img
@@ -50,7 +59,7 @@ const VenueCard = ({ venue, onDelete }) => {
         loading="lazy"
       />
 
-      {/* "NEW" badge */}
+      {/* NEW badge */}
       {isNew && (
         <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
           NEW
@@ -58,22 +67,19 @@ const VenueCard = ({ venue, onDelete }) => {
       )}
 
       <div className="p-4 flex-1 flex flex-col justify-between gap-2">
-        {/* Title */}
-        <h3 className="text-lg font-semibold text-gray-800 line-clamp-1 hover:underline">
-          <Link to={`/venues/${id}`}>{name}</Link>
+        {/* Title & location */}
+        <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">
+          {name}
         </h3>
-
-        {/* Location */}
         <p className="text-sm text-gray-500 line-clamp-1">
           {location?.city}, {location?.country}
         </p>
 
-        {/* Guests + Rating */}
+        {/* Stats */}
         <div className="flex justify-between items-center text-sm text-gray-700 mt-2">
           <span>👥 {maxGuests} guests</span>
           <span className="flex items-center gap-1">
-            <FaStar className="text-yellow-400" />
-            {rating ?? 0}
+            <FaStar className="text-yellow-400" /> {rating ?? 0}
           </span>
         </div>
 
@@ -88,24 +94,31 @@ const VenueCard = ({ venue, onDelete }) => {
         {/* Price */}
         <div className="text-right mt-4">
           <p className="text-base font-bold text-gray-900">
-            From ${price} <span className="text-sm font-normal">/ night</span>
+            From ${price}{" "}
+            <span className="text-sm font-normal">/ night</span>
           </p>
         </div>
 
-        {/* Action Buttons for Owner */}
+        {/* Action buttons */}
         {isVenueManager && isOwner && (
-          <div className="mt-4 flex justify-between gap-2">
+          <div className="mt-4 flex justify-between gap-2 z-10">
             <button
-              onClick={() => navigate(`/manager/edit/${id}`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/manager/edit/${id}`);
+              }}
               className="text-sm text-blue-600 hover:underline"
-              aria-label={`Edit venue ${name}`}
+              aria-label={`Edit ${name}`}
             >
               ✏️ Edit
             </button>
             <button
-              onClick={() => onDelete?.(id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(id);
+              }}
               className="text-sm text-red-600 hover:underline"
-              aria-label={`Delete venue ${name}`}
+              aria-label={`Delete ${name}`}
             >
               🗑 Delete
             </button>

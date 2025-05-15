@@ -12,6 +12,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import NotFound from './pages/public/NotFound';
 import ProfileDashboard from './pages/profile/ProfileDashboard';
 import CreateVenuePage from "./pages/manager/CreateVenuePage";
+import EditVenueForm from "./pages/manager/EditVenueForm";
 
 import './index.css';
 
@@ -50,6 +51,14 @@ function App() {
           element={
             <ManagerRoute>
               <CreateVenuePage />
+            </ManagerRoute>
+          }
+        />
+        <Route
+          path="/manager/edit/:id"
+          element={
+            <ManagerRoute>
+              <EditVenueForm />
             </ManagerRoute>
           }
         />
