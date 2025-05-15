@@ -3,18 +3,11 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FiMenu, FiX, FiUser } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 
-const navLinks = [
-  { name: "Browse Venues", path: "/venues" },
-  { name: "Start Hosting", path: "/hosting" },
-  { name: "Support", path: "/support" },
-];
-
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
-
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, isVenueManager } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -32,21 +25,37 @@ export default function Navbar() {
           </Link>
 
           <nav className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => (
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                `text-sm font-medium transition-colors ${
+                  isActive ? "text-[#ff4123]" : "text-[#1e1e1e] hover:text-[#ff4123]"
+                }`
+            }>
+              Explore Stays
+            </NavLink>
+
+            {isVenueManager && (
               <NavLink
-                key={link.name}
-                to={link.path}
+                to="/manager"
                 className={({ isActive }) =>
                   `text-sm font-medium transition-colors ${
-                    isActive
-                      ? "text-[#ff4123]"
-                      : "text-[#1e1e1e] hover:text-[#ff4123]"
+                    isActive ? "text-[#ff4123]" : "text-[#1e1e1e] hover:text-[#ff4123]"
                   }`
-                }
-              >
-                {link.name}
+              }>
+                Start Hosting
               </NavLink>
-            ))}
+            )}
+
+            <NavLink
+              to="/support"
+              className={({ isActive }) =>
+                `text-sm font-medium transition-colors ${
+                  isActive ? "text-[#ff4123]" : "text-[#1e1e1e] hover:text-[#ff4123]"
+                }`
+            }>
+              Support
+            </NavLink>
 
             <div className="relative">
               <button
@@ -118,20 +127,34 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden bg-[#fff8f4] px-6 pb-6 pt-2 shadow">
           <div className="flex flex-col space-y-3">
-            {navLinks.map((link) => (
+            <NavLink
+              to="/"
+              className="text-sm font-medium text-[#1e1e1e] hover:text-[#ff4123]"
+              onClick={() => setMenuOpen(false)}
+            >
+              Explore Stays
+            </NavLink>
+
+            {isVenueManager && (
               <NavLink
-                key={link.name}
-                to={link.path}
+                to="/manager"
                 className="text-sm font-medium text-[#1e1e1e] hover:text-[#ff4123]"
                 onClick={() => setMenuOpen(false)}
               >
-                {link.name}
+                Start Hosting
               </NavLink>
-            ))}
+            )}
+
+            <NavLink
+              to="/support"
+              className="text-sm font-medium text-[#1e1e1e] hover:text-[#ff4123]"
+              onClick={() => setMenuOpen(false)}
+            >
+              Support
+            </NavLink>
 
             <div className="border-t pt-3 space-y-2">
               {!isAuthenticated ? (
