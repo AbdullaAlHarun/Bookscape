@@ -9,6 +9,7 @@ export default function ManagerDashboard() {
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deletingVenueId, setDeletingVenueId] = useState(null);
 
   useEffect(() => {
     if (!user || authLoading) return;
@@ -28,15 +29,18 @@ export default function ManagerDashboard() {
     fetchVenues();
   }, [user, authLoading]);
 
-
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this venue?")) return;
+    setDeletingVenueId(id);
+  };
 
+  const confirmDelete = async () => {
     try {
-      await deleteVenue(id, user.accessToken, import.meta.env.VITE_API_KEY);
-      setVenues((prev) => prev.filter((v) => v.id !== id));
+      await deleteVenue(deletingVenueId, user.accessToken);
+      setVenues((prev) => prev.filter((v) => v.id !== deletingVenueId));
     } catch (err) {
       alert("❌ Error deleting venue: " + err.message);
+    } finally {
+      setDeletingVenueId(null);
     }
   };
 
@@ -69,6 +73,29 @@ export default function ManagerDashboard() {
           {venues.map((venue) => (
             <VenueCard key={venue.id} venue={venue} onDelete={handleDelete} />
           ))}
+        </div>
+      )}
+
+      {deletingVenueId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-60">
+          <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl text-center">
+            <h2 className="text-lg font-semibold text-gray-900">Delete Venue?</h2>
+            <p className="text-gray-600 text-sm mt-2 mb-4">This action cannot be undone.</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setDeletingVenueId(null)}
+                className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </main>

@@ -37,7 +37,6 @@ const VenueCard = ({ venue, onDelete }) => {
   const isOwner = user?.name === owner?.name;
 
   const handleCardClick = (e) => {
-    // prevent navigation from Edit/Delete buttons
     if (e.target.closest("button")) return;
     navigate(`/venues/${id}`);
   };
@@ -45,11 +44,11 @@ const VenueCard = ({ venue, onDelete }) => {
   return (
     <div
       onClick={handleCardClick}
+      onKeyDown={(e) => e.key === "Enter" && handleCardClick(e)}
       className="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-200 overflow-hidden flex flex-col relative cursor-pointer"
       role="button"
-      aria-label={`Open venue details for ${name}`}
       tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && handleCardClick(e)}
+      aria-label={`Open venue details for ${name}`}
     >
       {/* Venue image */}
       <img
