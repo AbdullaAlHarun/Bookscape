@@ -8,9 +8,12 @@ import Home from './pages/public/Home';
 import VenueDetailPage from "./pages/venues/[id]";
 import CustomerRoute from './routes/CustomerRoute';
 import ManagerRoute from './routes/ManagerRoute';
-import ProtectedRoute from './routes/ProtectedRoute'; // ✅ Required for /profile
+import ProtectedRoute from './routes/ProtectedRoute'; 
 import NotFound from './pages/public/NotFound';
 import ProfileDashboard from './pages/profile/ProfileDashboard';
+import CreateVenuePage from "./pages/manager/CreateVenuePage";
+import EditVenueForm from "./pages/manager/EditVenueForm";
+
 import './index.css';
 
 function App() {
@@ -40,6 +43,22 @@ function App() {
           element={
             <ManagerRoute>
               <ManagerDashboard />
+            </ManagerRoute>
+          }
+        />
+        <Route
+          path="manager/create"
+          element={
+            <ManagerRoute>
+              <CreateVenuePage />
+            </ManagerRoute>
+          }
+        />
+        <Route
+          path="/manager/edit/:id"
+          element={
+            <ManagerRoute>
+              <EditVenueForm />
             </ManagerRoute>
           }
         />
