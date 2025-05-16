@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { updateUserAvatar } from "../../services/profileService";
 import { uploadImageToImgBB } from "../../services/profileUploader";
+import ManagedVenuesSection from "../../components/profile/ManagedVenuesSection";
 
 export default function ProfileDashboard() {
   const { user, updateAvatar } = useAuth();
@@ -89,9 +90,8 @@ export default function ProfileDashboard() {
       {/* Manager vs Customer Section */}
       {user?.venueManager ? (
         <section className="mt-10">
-          <h2 className="text-xl font-semibold mb-2">Your Venues</h2>
-          <p className="text-gray-600 mb-4">Create and manage your listings</p>
-          {/* TODO: Venue manager grid/listing here */}
+         
+          <ManagedVenuesSection />
         </section>
       ) : (
         <section className="mt-10">
