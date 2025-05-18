@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function SearchBar() {
+  const navigate = useNavigate();
   const [location, setLocation] = useState("");
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
@@ -10,7 +12,15 @@ export default function SearchBar() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log({ location, checkIn, checkOut, guests });
+
+    const params = new URLSearchParams();
+
+    if (location) params.append("location", location.trim());
+    if (checkIn) params.append("checkIn", checkIn.toISOString());
+    if (checkOut) params.append("checkOut", checkOut.toISOString());
+    if (guests) params.append("guests", guests);
+
+    navigate(`/venues?${params.toString()}`);
   };
 
   return (
