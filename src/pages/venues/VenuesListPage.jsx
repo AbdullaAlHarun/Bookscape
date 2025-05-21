@@ -24,7 +24,6 @@ export default function VenuesListPage() {
         const checkIn = new Date(searchParams.get("checkIn"));
         const checkOut = new Date(searchParams.get("checkOut"));
 
-        // Step 1: Fuzzy search on location
         let filtered = data;
         if (location) {
           const fuse = new Fuse(data, {
@@ -35,10 +34,8 @@ export default function VenuesListPage() {
           filtered = fuseResults.map((r) => r.item);
         }
 
-        // Step 2: Guest filtering
         filtered = filtered.filter((venue) => venue.maxGuests >= guests);
 
-        // Step 3: Date validation (basic only)
         const today = new Date();
         if (
           checkIn.toString() !== "Invalid Date" &&
@@ -51,7 +48,6 @@ export default function VenuesListPage() {
           }
         }
 
-        // Step 4: Sorting
         if (sortOption === "priceLow") {
           filtered.sort((a, b) => a.price - b.price);
         } else if (sortOption === "priceHigh") {
@@ -77,18 +73,20 @@ export default function VenuesListPage() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold">Search Results</h1>
-        <select
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
-          className="border rounded px-3 py-2 text-sm"
-        >
-          <option value="newest">Sort: Newest</option>
-          <option value="priceLow">Price: Low to High</option>
-          <option value="priceHigh">Price: High to Low</option>
-          <option value="rating">Rating: High to Low</option>
-        </select>
+      <div className="sticky top-0 z-20 bg-white py-4 mb-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 px-2 sm:px-0">
+          <h1 className="text-2xl font-bold">Search Results</h1>
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+            className="border rounded px-3 py-2 text-sm"
+          >
+            <option value="newest">Sort: Newest</option>
+            <option value="priceLow">Price: Low to High</option>
+            <option value="priceHigh">Price: High to Low</option>
+            <option value="rating">Rating: High to Low</option>
+          </select>
+        </div>
       </div>
 
       {loading ? (
