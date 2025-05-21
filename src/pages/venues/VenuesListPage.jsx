@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import Fuse from "fuse.js";
 import { getAllVenues } from "../../services/venueService";
 import VenueCard from "../../components/venues/VenueCard";
 
@@ -7,32 +8,63 @@ export default function VenuesListPage() {
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [sortOption, setSortOption] = useState("newest");
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const fetchAndFilterVenues = async () => {
+    const fetchVenues = async () => {
       setLoading(true);
       setError("");
 
       try {
-        const { venues: data } = await getAllVenues(); // ✅ using destructuring
+        const { venues: data } = await getAllVenues();
+
         const location = searchParams.get("location")?.toLowerCase();
         const guests = parseInt(searchParams.get("guests")) || 1;
+        const checkIn = new Date(searchParams.get("checkIn"));
+        const checkOut = new Date(searchParams.get("checkOut"));
 
-        const filtered = data.filter((venue) => {
-          const matchesLocation = location
-            ? venue.location.city?.toLowerCase().includes(location) ||
-              venue.location.country?.toLowerCase().includes(location)
-            : true;
+        // Step 1: Fuzzy search on location
+        let filtered = data;
+        if (location) {
+          const fuse = new Fuse(data, {
+            keys: ["location.city", "location.country", "name"],
+            threshold: 0.3,
+          });
+          const fuseResults = fuse.search(location);
+          filtered = fuseResults.map((r) => r.item);
+        }
 
-          const matchesGuests = guests ? venue.maxGuests >= guests : true;
+        // Step 2: Guest filtering
+        filtered = filtered.filter((venue) => venue.maxGuests >= guests);
 
-          return matchesLocation && matchesGuests;
-        });
+        // Step 3: Date validation (basic only)
+        const today = new Date();
+        if (
+          checkIn.toString() !== "Invalid Date" &&
+          checkOut.toString() !== "Invalid Date"
+        ) {
+          if (checkOut <= checkIn || checkIn < today) {
+            setError("Invalid check-in/check-out dates.");
+            setVenues([]);
+            return;
+          }
+        }
+
+        // Step 4: Sorting
+        if (sortOption === "priceLow") {
+          filtered.sort((a, b) => a.price - b.price);
+        } else if (sortOption === "priceHigh") {
+          filtered.sort((a, b) => b.price - a.price);
+        } else if (sortOption === "rating") {
+          filtered.sort((a, b) => b.rating - a.rating);
+        } else if (sortOption === "newest") {
+          filtered.sort((a, b) => new Date(b.created) - new Date(a.created));
+        }
 
         setVenues(filtered);
       } catch (err) {
-        console.error("❌ Failed to fetch venues", err);
+        console.error("❌ Error fetching venues:", err);
         setError("Something went wrong while loading venues.");
         setVenues([]);
       } finally {
@@ -40,19 +72,31 @@ export default function VenuesListPage() {
       }
     };
 
-    fetchAndFilterVenues();
-  }, [searchParams]);
+    fetchVenues();
+  }, [searchParams, sortOption]);
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold mb-4">Available Venues</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
+        <h1 className="text-2xl font-bold">Search Results</h1>
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          className="border rounded px-3 py-2 text-sm"
+        >
+          <option value="newest">Sort: Newest</option>
+          <option value="priceLow">Price: Low to High</option>
+          <option value="priceHigh">Price: High to Low</option>
+          <option value="rating">Rating: High to Low</option>
+        </select>
+      </div>
 
       {loading ? (
         <p className="text-gray-600">Loading venues...</p>
       ) : error ? (
-        <p className="text-red-500">{error}</p>
+        <p className="text-red-600">{error}</p>
       ) : venues.length === 0 ? (
-        <p className="text-gray-500">No venues match your search criteria.</p>
+        <p className="text-gray-500">No venues match your search. Try different criteria.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {venues.map((venue) => (
