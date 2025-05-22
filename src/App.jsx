@@ -15,7 +15,7 @@ import CreateVenuePage from "./pages/manager/CreateVenuePage";
 import EditVenueForm from "./pages/manager/EditVenueForm";
 import VenuesListPage from './pages/venues/VenuesListPage';
 import BookVenuePage from "./pages/bookings/BookVenuePage"; 
-
+import BookingReviewPage from "./pages/bookings/BookingReviewPage";
 import './index.css';
 
 function App() {
@@ -46,6 +46,15 @@ function App() {
           element={
             <CustomerRoute>
               <BookVenuePage />
+            </CustomerRoute>
+          }
+        />
+        
+        <Route
+          path="/venues/:id/review"
+          element={
+            <CustomerRoute>
+              <BookingReviewPage />
             </CustomerRoute>
           }
         />

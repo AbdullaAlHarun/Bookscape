@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { getVenueById } from "../../services/venueService";
-import { createBooking } from "../../services/bookingService";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function BookVenuePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [venue, setVenue] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,7 +15,29 @@ export default function BookVenuePage() {
   const [checkOut, setCheckOut] = useState(null);
   const [guests, setGuests] = useState(1);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    const initFormStateFromURL = () => {
+      const checkInParam = searchParams.get("checkIn");
+      const checkOutParam = searchParams.get("checkOut");
+      const guestsParam = searchParams.get("guests");
+
+      if (checkInParam) {
+        const parsed = new Date(checkInParam);
+        if (!isNaN(parsed)) setCheckIn(parsed);
+      }
+      if (checkOutParam) {
+        const parsed = new Date(checkOutParam);
+        if (!isNaN(parsed)) setCheckOut(parsed);
+      }
+      if (guestsParam) {
+        const parsedGuests = parseInt(guestsParam);
+        if (!isNaN(parsedGuests)) setGuests(parsedGuests);
+      }
+    };
+
+    initFormStateFromURL();
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchVenue = async () => {
@@ -32,34 +54,29 @@ export default function BookVenuePage() {
     fetchVenue();
   }, [id]);
 
-  const handleBooking = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
-
-    if (!checkIn || !checkOut || guests < 1) {
-      return setError("Please fill all fields properly.");
-    }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    if (!checkIn || !checkOut || guests < 1) {
+      return setError("Please fill all fields properly.");
+    }
     if (checkOut <= checkIn || checkIn < today) {
       return setError("Invalid check-in/check-out dates.");
     }
 
-    try {
-      await createBooking({
-        venueId: id,
-        dateFrom: checkIn.toISOString(),
-        dateTo: checkOut.toISOString(),
-        guests: parseInt(guests),
-      });
-      setSuccess("Booking successful!");
-      setTimeout(() => navigate("/profile"), 1500);
-    } catch (err) {
-      setError(err.message || "Failed to create booking.");
-    }
+    // Redirect to review page
+    navigate(`/venues/${id}/review`, {
+      state: {
+        checkIn: checkIn.toISOString(),
+        checkOut: checkOut.toISOString(),
+        guests,
+        venue,
+      },
+    });
   };
 
   if (loading) return <p className="p-8 text-center">Loading venue info...</p>;
@@ -69,7 +86,7 @@ export default function BookVenuePage() {
     <main className="max-w-xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-bold mb-6">Book: {venue.name}</h1>
 
-      <form onSubmit={handleBooking} className="space-y-5 border p-6 rounded-lg shadow">
+      <form onSubmit={handleSubmit} className="space-y-5 border p-6 rounded-lg shadow">
         <div>
           <label className="block mb-1 font-medium">Check-in</label>
           <DatePicker
@@ -110,13 +127,12 @@ export default function BookVenuePage() {
         </div>
 
         {error && <p className="text-red-600">{error}</p>}
-        {success && <p className="text-green-600">{success}</p>}
 
         <button
           type="submit"
           className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded"
         >
-          Confirm Booking
+          Continue to Review
         </button>
       </form>
     </main>
