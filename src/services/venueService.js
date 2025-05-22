@@ -2,10 +2,8 @@ const API_BASE = "https://v2.api.noroff.dev";
 const API_KEY = import.meta.env.VITE_NOROFF_API_KEY;
 
 //  1. Get all venues (public)
-export const getAllVenues = async (page = 1, limit = 8) => {
-  const res = await fetch(
-    `${API_BASE}/holidaze/venues?sort=created&sortOrder=desc&limit=${limit}&page=${page}`
-  );
+export const getAllVenues = async () => {
+  const res = await fetch(`${API_BASE}/holidaze/venues`);
   if (!res.ok) {
     throw new Error("Unable to fetch venues");
   }
@@ -31,7 +29,7 @@ export async function getVenuesByProfile(profileName) {
   const token = JSON.parse(localStorage.getItem("user"))?.accessToken;
 
   const res = await fetch(
-    `${API_BASE}/holidaze/profiles/${profileName}/venues?_owner=true`, 
+    `${API_BASE}/holidaze/profiles/${profileName}/venues?_owner=true`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -48,7 +46,6 @@ export async function getVenuesByProfile(profileName) {
 
   return data.data;
 }
-
 
 //  4. Create venue (protected)
 export const createVenue = async (venueData, accessToken) => {
@@ -78,7 +75,7 @@ export async function updateVenue(id, venueData, accessToken) {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
-      "X-Noroff-API-Key": API_KEY, // ✅ fixed line
+      "X-Noroff-API-Key": API_KEY,
     },
     body: JSON.stringify(venueData),
   });
@@ -92,8 +89,7 @@ export async function updateVenue(id, venueData, accessToken) {
   return data.data;
 }
 
-
-//  5. Delete venue (protected)
+//  6. Delete venue (protected)
 export const deleteVenue = async (id, accessToken) => {
   const res = await fetch(`${API_BASE}/holidaze/venues/${id}`, {
     method: "DELETE",
