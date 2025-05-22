@@ -14,6 +14,7 @@ import ProfileDashboard from './pages/profile/ProfileDashboard';
 import CreateVenuePage from "./pages/manager/CreateVenuePage";
 import EditVenueForm from "./pages/manager/EditVenueForm";
 import VenuesListPage from './pages/venues/VenuesListPage';
+import BookVenuePage from "./pages/bookings/BookVenuePage"; 
 
 import './index.css';
 
@@ -30,7 +31,7 @@ function App() {
         <Route path="home" element={<Home />} />
         <Route path="/venues/:id" element={<VenueDetailPage />} />
         <Route path="/venues" element={<VenuesListPage />} />
-
+        <Route path="/venues/:id/book" element={<BookVenuePage />} />
         {/* ✅ Role-based protected routes */}
         <Route
           path="customer"

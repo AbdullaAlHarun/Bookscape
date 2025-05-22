@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getVenueById } from "../../services/venueService";
 import {
   FaWifi,
@@ -12,6 +12,7 @@ import placeholderImage from "../../assets/placeholder.png";
 
 export default function VenueDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [venue, setVenue] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,14 +58,12 @@ export default function VenueDetailPage() {
   return (
     <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <section aria-labelledby="venue-title" className="space-y-6">
-      
         <h1
-            id="venue-title"
-            className="text-2xl sm:text-3xl font-bold text-gray-900 break-words"
-            >
-            {name}
+          id="venue-title"
+          className="text-2xl sm:text-3xl font-bold text-gray-900 break-words"
+        >
+          {name}
         </h1>
-
 
         <img
           src={imageUrl}
@@ -99,38 +98,48 @@ export default function VenueDetailPage() {
           </div>
 
           {/* Right Column */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-800">
-              Amenities
-            </h2>
-            <div className="flex flex-wrap gap-4 text-gray-700 text-base">
-              {meta?.wifi && (
-                <span className="flex items-center gap-2">
-                  <FaWifi /> WiFi
-                </span>
-              )}
-              {meta?.parking && (
-                <span className="flex items-center gap-2">
-                  <FaParking /> Parking
-                </span>
-              )}
-              {meta?.pets && (
-                <span className="flex items-center gap-2">
-                  <FaPaw /> Pets Allowed
-                </span>
-              )}
-              {meta?.breakfast && (
-                <span className="flex items-center gap-2">
-                  <FaCoffee /> Breakfast
-                </span>
-              )}
-              {!meta?.wifi &&
-                !meta?.parking &&
-                !meta?.pets &&
-                !meta?.breakfast && (
-                  <span>No amenities listed.</span>
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                Amenities
+              </h2>
+              <div className="flex flex-wrap gap-4 text-gray-700 text-base">
+                {meta?.wifi && (
+                  <span className="flex items-center gap-2">
+                    <FaWifi /> WiFi
+                  </span>
                 )}
+                {meta?.parking && (
+                  <span className="flex items-center gap-2">
+                    <FaParking /> Parking
+                  </span>
+                )}
+                {meta?.pets && (
+                  <span className="flex items-center gap-2">
+                    <FaPaw /> Pets Allowed
+                  </span>
+                )}
+                {meta?.breakfast && (
+                  <span className="flex items-center gap-2">
+                    <FaCoffee /> Breakfast
+                  </span>
+                )}
+                {!meta?.wifi &&
+                  !meta?.parking &&
+                  !meta?.pets &&
+                  !meta?.breakfast && (
+                    <span>No amenities listed.</span>
+                  )}
+              </div>
             </div>
+
+            {/* 👉 Book Now Button */}
+            <button
+              onClick={() => navigate(`/venues/${id}/book`)}
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-3 rounded-md transition"
+            >
+              Book Now
+            </button>
           </div>
         </div>
       </section>
