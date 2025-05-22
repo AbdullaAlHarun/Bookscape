@@ -31,7 +31,7 @@ function App() {
         <Route path="home" element={<Home />} />
         <Route path="/venues/:id" element={<VenueDetailPage />} />
         <Route path="/venues" element={<VenuesListPage />} />
-        <Route path="/venues/:id/book" element={<BookVenuePage />} />
+       
         {/* ✅ Role-based protected routes */}
         <Route
           path="customer"
@@ -41,6 +41,15 @@ function App() {
             </CustomerRoute>
           }
         />
+        <Route
+          path="/venues/:id/book"
+          element={
+            <CustomerRoute>
+              <BookVenuePage />
+            </CustomerRoute>
+          }
+        />
+
         <Route
           path="manager"
           element={
@@ -73,6 +82,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
       </Route>
 
       {/* ✅ 404 fallback route (MUST be last) */}
