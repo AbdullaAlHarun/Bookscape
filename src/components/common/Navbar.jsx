@@ -92,6 +92,7 @@ export default function Navbar() {
                     <>
                       <Link
                         to="/profile"
+                        onClick={() => setProfileOpen(false)}
                         className="block px-4 py-2 text-sm hover:bg-[#fff0eb]"
                       >
                         Profile
