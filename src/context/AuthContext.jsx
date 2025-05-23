@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  // ✅ New: Update Avatar in context + storage
+  // Update Avatar in context + storage
   const updateAvatar = (newAvatar) => {
     const updatedUser = {
       ...user,
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
         user,
         login,
         logout,
-        updateAvatar, // ✅ exposed
+        updateAvatar, 
         isAuthenticated,
         isVenueManager,
         isCustomer,

@@ -15,7 +15,7 @@ import CreateVenuePage from "./pages/manager/CreateVenuePage";
 import EditVenueForm from "./pages/manager/EditVenueForm";
 
 import BookVenuePage from "./pages/bookings/BookVenuePage";
-import BookingConfirmPage from "./pages/bookings/BookingConfirmPage"; 
+import BookingConfirmPage from "./pages/bookings/BookingConfirmPage";
 
 import ProfileDashboard from './pages/profile/ProfileDashboard';
 
@@ -39,7 +39,7 @@ function App() {
         <Route path="/venues/:id" element={<VenueDetailPage />} />
         <Route path="/venues" element={<VenuesListPage />} />
 
-        {/* Protected routes */}
+        {/* Customer Routes */}
         <Route
           path="customer"
           element={
@@ -56,8 +56,7 @@ function App() {
             </CustomerRoute>
           }
         />
-       
-       <Route
+        <Route
           path="/bookings/:id/confirm"
           element={
             <CustomerRoute>
@@ -65,8 +64,9 @@ function App() {
             </CustomerRoute>
           }
         />
+ 
 
-
+        {/* Manager Routes */}
         <Route
           path="manager"
           element={
@@ -91,6 +91,8 @@ function App() {
             </ManagerRoute>
           }
         />
+
+        {/* Authenticated User Route */}
         <Route
           path="profile"
           element={
@@ -101,7 +103,7 @@ function App() {
         />
       </Route>
 
-      {/* Fallback route */}
+      {/* Fallback */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

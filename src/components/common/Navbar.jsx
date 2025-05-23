@@ -31,7 +31,8 @@ export default function Navbar() {
                 `text-sm font-medium transition-colors ${
                   isActive ? "text-[#ff4123]" : "text-[#1e1e1e] hover:text-[#ff4123]"
                 }`
-            }>
+              }
+            >
               Explore Stays
             </NavLink>
 
@@ -42,20 +43,11 @@ export default function Navbar() {
                   `text-sm font-medium transition-colors ${
                     isActive ? "text-[#ff4123]" : "text-[#1e1e1e] hover:text-[#ff4123]"
                   }`
-              }>
+                }
+              >
                 Start Hosting
               </NavLink>
             )}
-
-            <NavLink
-              to="/support"
-              className={({ isActive }) =>
-                `text-sm font-medium transition-colors ${
-                  isActive ? "text-[#ff4123]" : "text-[#1e1e1e] hover:text-[#ff4123]"
-                }`
-            }>
-              Support
-            </NavLink>
 
             <div className="relative">
               <button
@@ -100,6 +92,7 @@ export default function Navbar() {
                     <>
                       <Link
                         to="/profile"
+                        onClick={() => setProfileOpen(false)}
                         className="block px-4 py-2 text-sm hover:bg-[#fff0eb]"
                       >
                         Profile
@@ -148,14 +141,6 @@ export default function Navbar() {
               </NavLink>
             )}
 
-            <NavLink
-              to="/support"
-              className="text-sm font-medium text-[#1e1e1e] hover:text-[#ff4123]"
-              onClick={() => setMenuOpen(false)}
-            >
-              Support
-            </NavLink>
-
             <div className="border-t pt-3 space-y-2">
               {!isAuthenticated ? (
                 <>
@@ -185,7 +170,10 @@ export default function Navbar() {
                   </Link>
                   <button
                     className="block w-full text-left px-4 py-2 text-sm hover:bg-[#fff0eb]"
-                    onClick={handleLogout}
+                    onClick={() => {
+                      handleLogout();
+                      setMenuOpen(false);
+                    }}
                   >
                     Logout
                   </button>
