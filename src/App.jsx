@@ -1,38 +1,45 @@
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
+
 import CustomerDashboard from './pages/customer/CustomerDashboard';
 import ManagerDashboard from './pages/manager/ManagerDashboard';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Home from './pages/public/Home';
-import VenueDetailPage from "./pages/venues/[id]";
-import CustomerRoute from './routes/CustomerRoute';
-import ManagerRoute from './routes/ManagerRoute';
-import ProtectedRoute from './routes/ProtectedRoute'; 
 import NotFound from './pages/public/NotFound';
-import ProfileDashboard from './pages/profile/ProfileDashboard';
+
+import VenueDetailPage from "./pages/venues/[id]";
+import VenuesListPage from './pages/venues/VenuesListPage';
+
 import CreateVenuePage from "./pages/manager/CreateVenuePage";
 import EditVenueForm from "./pages/manager/EditVenueForm";
-import VenuesListPage from './pages/venues/VenuesListPage';
-import BookVenuePage from "./pages/bookings/BookVenuePage"; 
-import BookingReviewPage from "./pages/bookings/BookingReviewPage";
+
+import BookVenuePage from "./pages/bookings/BookVenuePage";
+import BookingConfirmPage from "./pages/bookings/BookingConfirmPage"; 
+
+import ProfileDashboard from './pages/profile/ProfileDashboard';
+
+import CustomerRoute from './routes/CustomerRoute';
+import ManagerRoute from './routes/ManagerRoute';
+import ProtectedRoute from './routes/ProtectedRoute';
+
 import './index.css';
 
 function App() {
   return (
     <Routes>
-      {/* Public Routes (no layout) */}
+      {/* Public Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* Routes with Main Layout */}
+      {/* Routes with layout */}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="home" element={<Home />} />
         <Route path="/venues/:id" element={<VenueDetailPage />} />
         <Route path="/venues" element={<VenuesListPage />} />
-       
-        {/* ✅ Role-based protected routes */}
+
+        {/* Protected routes */}
         <Route
           path="customer"
           element={
@@ -49,15 +56,16 @@ function App() {
             </CustomerRoute>
           }
         />
-        
-        <Route
-          path="/venues/:id/review"
+       
+       <Route
+          path="/bookings/:id/confirm"
           element={
             <CustomerRoute>
-              <BookingReviewPage />
+              <BookingConfirmPage />
             </CustomerRoute>
           }
         />
+
 
         <Route
           path="manager"
@@ -91,10 +99,9 @@ function App() {
             </ProtectedRoute>
           }
         />
-
       </Route>
 
-      {/* ✅ 404 fallback route (MUST be last) */}
+      {/* Fallback route */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
