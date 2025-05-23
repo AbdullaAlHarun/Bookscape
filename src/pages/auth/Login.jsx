@@ -1,6 +1,6 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../../services/authService";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
@@ -22,10 +22,9 @@ const Login = () => {
 
     try {
       const userData = await loginUser({ email, password });
-      login(userData); // ✅ set user in context + localStorage
+      login(userData);
       setError("");
 
-      // Optional: Redirect based on role
       if (userData.venueManager) {
         navigate("/manager");
       } else {
@@ -55,13 +54,9 @@ const Login = () => {
           required
           onChange={(e) => setEmail(e.target.value)}
           className="w-full p-2 border rounded focus:outline-none focus:ring focus:ring-black"
-          aria-describedby="emailHelp"
         />
-        <p id="emailHelp" className="text-sm text-gray-500 mb-4">
-          Use your <strong>@stud.noroff.no</strong> email
-        </p>
 
-        <label htmlFor="password" className="block mb-2 font-medium">
+        <label htmlFor="password" className="block mt-4 mb-2 font-medium">
           Password
         </label>
         <input
@@ -88,6 +83,13 @@ const Login = () => {
         >
           Log In
         </button>
+
+        <p className="mt-6 text-center text-sm text-gray-600">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-blue-600 hover:underline">
+            Register Now
+          </Link>
+        </p>
       </form>
     </main>
   );

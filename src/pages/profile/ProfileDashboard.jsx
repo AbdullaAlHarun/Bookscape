@@ -19,13 +19,13 @@ export default function ProfileDashboard() {
     try {
       setStatus("Uploading...");
 
-      // ✅ Upload to ImgBB and get public image URL
+      //  Upload to ImgBB and get public image URL
       const imageUrl = await uploadImageToImgBB(selectedFile);
 
-      // ✅ Update avatar on Holidaze API
+      // Update avatar on Holidaze API
       const updated = await updateUserAvatar(user.name, imageUrl);
 
-      // ✅ Update context with new avatar
+      // Update context with new avatar
       updateAvatar(updated);
 
       setStatus("✅ Avatar updated!");
