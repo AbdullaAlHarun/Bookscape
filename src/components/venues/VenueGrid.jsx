@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import VenueCard from "./VenueCard";
 import VenueCardSkeleton from "./VenueCardSkeleton";
-import { getAllVenues } from "../../services/venueService";
+import { getVenuesPage } from "../../services/venueService";
 
 const INITIAL_PAGE = 1;
-const INITIAL_LIMIT = 16;
-const LOAD_MORE_LIMIT = 8;
+const PAGE_LIMIT = 12;
 
 const VenueGrid = () => {
   const [venues, setVenues] = useState([]);
@@ -15,78 +14,48 @@ const VenueGrid = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
-    const loadInitialVenues = async () => {
-      try {
-        const { venues: data, totalCount } = await getAllVenues(
-          INITIAL_PAGE,
-          INITIAL_LIMIT
-        );
-        setVenues(data);
-        setTotalCount(totalCount);
-      } catch (error) {
-        console.error("Failed to load venues", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadInitialVenues();
+    loadVenues(INITIAL_PAGE);
   }, []);
 
-  const loadMoreVenues = async () => {
-    const nextPage = page + 1;
-    setIsLoadingMore(true);
+  const loadVenues = async (pageToLoad) => {
     try {
-      const { venues: newVenues } = await getAllVenues(nextPage, LOAD_MORE_LIMIT);
-      setVenues((prev) => [...prev, ...newVenues]);
-      setPage(nextPage);
+      const { venues: data, totalCount } = await getVenuesPage(pageToLoad, PAGE_LIMIT);
+      setVenues(prev => [...prev, ...data]);
+      setTotalCount(totalCount);
+      setPage(pageToLoad);
     } catch (error) {
-      console.error("Failed to load more venues", error);
+      console.error("Failed to load venues", error);
     } finally {
+      setLoading(false);
       setIsLoadingMore(false);
     }
+  };
+
+  const loadMore = () => {
+    setIsLoadingMore(true);
+    loadVenues(page + 1);
   };
 
   const allLoaded = totalCount !== null && venues.length >= totalCount;
 
   return (
     <>
-      <section
-        aria-labelledby="venue-grid-heading"
-        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8"
-      >
-        <h2 id="venue-grid-heading" className="sr-only">
-          Venue Listings
-        </h2>
-
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
         {loading
-          ? Array.from({ length: 8 }).map((_, index) => (
-              <VenueCardSkeleton key={index} />
-            ))
-          : venues.map((venue) => (
-              <VenueCard key={venue.id} venue={venue} />
-            ))}
+          ? Array.from({ length: 8 }).map((_, i) => <VenueCardSkeleton key={i} />)
+          : venues.map((venue) => <VenueCard key={venue.id} venue={venue} />)}
       </section>
 
-      {/* Load More Button */}
       {!loading && !allLoaded && (
-        <div className="flex justify-center mt-8">
-         <button
-            onClick={loadMoreVenues}
+        <div className="text-center mt-8">
+          <button
+            onClick={loadMore}
             disabled={isLoadingMore}
-            className="bg-[#F97316] hover:bg-[#ea580c] text-white font-semibold px-6 py-3 rounded-xl shadow transition disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2"
-            >
+            className="bg-orange-500 text-white px-6 py-3 rounded-xl shadow hover:bg-orange-600 transition"
+          >
             {isLoadingMore ? "Loading..." : "Load More"}
-        </button>
-
+          </button>
         </div>
-      )}
-
-      {/* All Loaded Message */}
-      {allLoaded && (
-        <p className="text-center text-gray-500 mt-8">
-          🎉 All venues loaded
-        </p>
       )}
     </>
   );
