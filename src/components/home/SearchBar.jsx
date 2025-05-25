@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { getAllVenues } from "../../services/venueService";
 import Fuse from "fuse.js";
+import { getAllVenuesWithBookings } from "../../services/venueService";
 
 export default function SearchBar() {
   const navigate = useNavigate();
@@ -12,75 +12,74 @@ export default function SearchBar() {
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
   const [guests, setGuests] = useState("1");
+  const timeoutRef = useRef(null);
 
+  // Debounced suggestion loading
   useEffect(() => {
-    const fetchSuggestions = async () => {
+    if (location.length < 2) return setSuggestions([]);
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(async () => {
       try {
-        const { venues } = await getAllVenues();
-        const uniqueLocations = Array.from(
-          new Set(
-            venues.flatMap((v) => [v.location.city, v.location.country].filter(Boolean))
-          )
-        );
-        const fuse = new Fuse(uniqueLocations, {
-          includeScore: true,
+        const allVenues = await getAllVenuesWithBookings();
+        const fuse = new Fuse(allVenues, {
+          keys: ["name", "location.city", "location.country"],
           threshold: 0.3,
         });
-        if (location.length > 1) {
-          const results = fuse.search(location).map((res) => res.item);
-          setSuggestions(results);
-        } else {
-          setSuggestions([]);
-        }
-      } catch (err) {
-        console.error("Error fetching venue suggestions", err);
+        const results = fuse.search(location).map((r) => r.item.name);
+        setSuggestions([...new Set(results)]);
+      } catch (error) {
+        console.error("Suggestion error:", error);
+        setSuggestions([]);
       }
-    };
-    fetchSuggestions();
+    }, 300);
+
+    return () => clearTimeout(timeoutRef.current);
   }, [location]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const params = new URLSearchParams();
-    if (location) params.append("location", location.trim());
-    if (checkIn) params.append("checkIn", checkIn.toISOString());
-    if (checkOut) params.append("checkOut", checkOut.toISOString());
-    if (guests) params.append("guests", guests);
-
-    navigate(`/venues?${params.toString()}`);
-  };
-
-  const handleSelectSuggestion = (value) => {
-    setLocation(value);
-    setSuggestions([]);
+    if (location) params.set("location", location);
+    if (checkIn) params.set("checkIn", checkIn.toISOString());
+    if (checkOut) params.set("checkOut", checkOut.toISOString());
+    if (guests) params.set("guests", guests);
+    navigate(`/venues?${params}`);
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white shadow-lg rounded-xl px-6 py-4 md:py-6 w-full max-w-5xl mx-auto grid md:grid-cols-5 gap-4 items-end relative"
+      className="bg-white shadow-lg rounded-xl p-6 grid md:grid-cols-5 gap-4 max-w-5xl mx-auto"
     >
-      {/* Location */}
-      <div className="flex flex-col relative">
-        <label className="text-sm font-medium mb-1 text-[#1e1e1e]">Where to?</label>
+      {/* Location input with autosuggest */}
+      <div className="relative">
+        <label className="block text-sm font-medium">Where to?</label>
         <input
           type="text"
-          placeholder="Search location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300"
-          required
+          placeholder="Search city or venue"
+          className="w-full border px-3 py-2 rounded"
+          autoComplete="off"
+          aria-autocomplete="list"
+          aria-controls="suggestions-list"
         />
         {suggestions.length > 0 && (
-          <ul className="absolute z-10 top-full mt-1 bg-white border border-gray-300 rounded shadow w-full max-h-40 overflow-y-auto">
-            {suggestions.map((suggestion, i) => (
+          <ul
+            id="suggestions-list"
+            className="absolute z-10 bg-white border mt-1 w-full max-h-40 overflow-y-auto rounded shadow"
+          >
+            {suggestions.map((item, i) => (
               <li
                 key={i}
-                className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                onClick={() => handleSelectSuggestion(suggestion)}
+                onMouseDown={() => {
+                  setLocation(item);
+                  setSuggestions([]);
+                }}
+                className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
               >
-                {suggestion}
+                {item}
               </li>
             ))}
           </ul>
@@ -88,54 +87,49 @@ export default function SearchBar() {
       </div>
 
       {/* Check-in */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium mb-1 text-[#1e1e1e]">Check-in</label>
+      <div>
+        <label className="block text-sm font-medium">Check-in</label>
         <DatePicker
           selected={checkIn}
-          onChange={(date) => setCheckIn(date)}
-          selectsStart
-          startDate={checkIn}
-          endDate={checkOut}
-          placeholderText="Select date"
-          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300"
+          onChange={setCheckIn}
+          placeholderText="Select"
+          className="w-full border px-3 py-2 rounded"
         />
       </div>
 
       {/* Check-out */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium mb-1 text-[#1e1e1e]">Check-out</label>
+      <div>
+        <label className="block text-sm font-medium">Check-out</label>
         <DatePicker
           selected={checkOut}
-          onChange={(date) => setCheckOut(date)}
-          selectsEnd
-          startDate={checkIn}
-          endDate={checkOut}
+          onChange={setCheckOut}
           minDate={checkIn}
-          placeholderText="Select date"
-          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-300"
+          placeholderText="Select"
+          className="w-full border px-3 py-2 rounded"
         />
       </div>
 
       {/* Guests */}
-      <div className="flex flex-col">
-        <label className="text-sm font-medium mb-1 text-[#1e1e1e]">Guests</label>
+      <div>
+        <label className="block text-sm font-medium">Guests</label>
         <select
           value={guests}
           onChange={(e) => setGuests(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-orange-300"
+          className="w-full border px-3 py-2 rounded"
         >
-          <option value="1">1 Guest</option>
-          <option value="2">2 Guests</option>
-          <option value="3">3 Guests</option>
-          <option value="4">4+ Guests</option>
+          {[1, 2, 3, 4, 5, 6].map((g) => (
+            <option key={g} value={g}>
+              {g} {g === 1 ? "Guest" : "Guests"}
+            </option>
+          ))}
         </select>
       </div>
 
       {/* Submit */}
-      <div>
+      <div className="flex items-end">
         <button
           type="submit"
-          className="w-full bg-[#ff4123] text-white font-semibold px-6 py-2 rounded hover:bg-[#e1371c] transition"
+          className="bg-[#ff4123] text-white px-6 py-2 rounded hover:bg-[#e1371c] w-full"
         >
           Search
         </button>

@@ -1,64 +1,56 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import Fuse from "fuse.js";
-import { getAllVenues } from "../../services/venueService";
+import { getAllVenuesWithBookings } from "../../services/venueService";
 import VenueCard from "../../components/venues/VenueCard";
 
 export default function VenuesListPage() {
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [sortOption, setSortOption] = useState("newest");
+  const [sort, setSort] = useState("newest");
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const fetchVenues = async () => {
+    const fetch = async () => {
       setLoading(true);
       setError("");
 
       try {
-        const { venues: data } = await getAllVenues();
-
-        const location = searchParams.get("location")?.toLowerCase();
+        const location = searchParams.get("location")?.toLowerCase() || "";
         const guests = parseInt(searchParams.get("guests")) || 1;
+        const checkIn = searchParams.get("checkIn") ? new Date(searchParams.get("checkIn")) : null;
+        const checkOut = searchParams.get("checkOut") ? new Date(searchParams.get("checkOut")) : null;
 
-        const checkInRaw = searchParams.get("checkIn");
-        const checkOutRaw = searchParams.get("checkOut");
-        const checkIn = checkInRaw ? new Date(checkInRaw) : null;
-        const checkOut = checkOutRaw ? new Date(checkOutRaw) : null;
+        if (checkIn && checkOut && checkOut <= checkIn) {
+          setError("❌ Check-out must be after check-in.");
+          setVenues([]);
+          return;
+        }
 
-        let filtered = data;
+        const results = await getAllVenuesWithBookings();
+        let filtered = results;
 
-        // Fuzzy search
         if (location) {
-          const fuse = new Fuse(data, {
-            keys: ["location.city", "location.country", "name"],
-            threshold: 0.3,
-          });
-          const fuseResults = fuse.search(location);
-          filtered = fuseResults.map((r) => r.item);
+          filtered = filtered.filter((v) =>
+            (v.location?.city?.toLowerCase().includes(location)) ||
+            (v.location?.country?.toLowerCase().includes(location)) ||
+            (v.name?.toLowerCase().includes(location))
+          );
         }
 
-        // Guest filter
-        filtered = filtered.filter((venue) => venue.maxGuests >= guests);
+        filtered = filtered.filter((v) => v.maxGuests >= guests);
 
-        // Date validation
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Normalize to midnight
-
-        const hasCheckIn = checkIn instanceof Date && !isNaN(checkIn);
-        const hasCheckOut = checkOut instanceof Date && !isNaN(checkOut);
-
-        if (hasCheckIn && hasCheckOut) {
-          if (checkOut <= checkIn || checkIn < today) {
-            setError("Invalid check-in/check-out dates.");
-            setVenues([]);
-            return;
-          }
+        if (checkIn && checkOut) {
+          filtered = filtered.filter((v) =>
+            v.bookings.every((b) => {
+              const from = new Date(b.dateFrom);
+              const to = new Date(b.dateTo);
+              return to <= checkIn || from >= checkOut;
+            })
+          );
         }
 
-        // Sorting
-        switch (sortOption) {
+        switch (sort) {
           case "priceLow":
             filtered.sort((a, b) => a.price - b.price);
             break;
@@ -68,7 +60,6 @@ export default function VenuesListPage() {
           case "rating":
             filtered.sort((a, b) => b.rating - a.rating);
             break;
-          case "newest":
           default:
             filtered.sort((a, b) => new Date(b.created) - new Date(a.created));
             break;
@@ -76,46 +67,42 @@ export default function VenuesListPage() {
 
         setVenues(filtered);
       } catch (err) {
-        console.error("❌ Error fetching venues:", err);
-        setError("Something went wrong while loading venues.");
-        setVenues([]);
+        console.error("Search failed", err);
+        setError("Failed to load venues");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchVenues();
-  }, [searchParams, sortOption]);
+    fetch();
+  }, [searchParams, sort]);
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
-     <div className="sticky top-0 z-20 bg-white py-4 mb-6 shadow-sm">
-  <div className="max-w-6xl mx-auto flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 px-4">
-    <h1 className="text-2xl font-bold whitespace-nowrap">Search Results</h1>
-    <select
-      value={sortOption}
-      onChange={(e) => setSortOption(e.target.value)}
-      className="border rounded px-3 py-2 text-sm"
-    >
-      <option value="newest">Sort: Newest</option>
-      <option value="priceLow">Price: Low to High</option>
-      <option value="priceHigh">Price: High to Low</option>
-      <option value="rating">Rating: High to Low</option>
-    </select>
-  </div>
-</div>
-
+      <div className="flex justify-between mb-6 items-center">
+        <h1 className="text-2xl font-bold">Search Results</h1>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="border px-3 py-2 rounded"
+        >
+          <option value="newest">Newest</option>
+          <option value="priceLow">Price: Low to High</option>
+          <option value="priceHigh">Price: High to Low</option>
+          <option value="rating">Rating</option>
+        </select>
+      </div>
 
       {loading ? (
-        <p className="text-gray-600">Loading venues...</p>
+        <p>Loading venues...</p>
       ) : error ? (
-        <p className="text-red-600">{error}</p>
+        <p className="text-red-500">{error}</p>
       ) : venues.length === 0 ? (
-        <p className="text-gray-500">No venues match your search. Try different criteria.</p>
+        <p>No venues found for your criteria.</p>
       ) : (
-        <div className="grid grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {venues.map((venue) => (
-            <VenueCard key={venue.id} venue={venue} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {venues.map((v, index) => (
+            <VenueCard key={`${v.id}-${index}`} venue={v} />
           ))}
         </div>
       )}

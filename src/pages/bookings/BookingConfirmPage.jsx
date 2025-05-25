@@ -25,17 +25,45 @@ export default function BookingConfirmPage() {
   const total = subtotal + serviceFee;
 
   const handleBooking = async () => {
+    const guestsNum = parseInt(guests, 10);
+
+    // 1. Validate guest count
+    if (guestsNum > venue.maxGuests) {
+      toast.error(`This venue allows up to ${venue.maxGuests} guests.`);
+      return;
+    }
+
+    // 2. Validate date conflicts
+    const checkStart = new Date(checkIn);
+    const checkEnd = new Date(checkOut);
+
+    const hasConflict = venue.bookings?.some((booking) => {
+      const existingStart = new Date(booking.dateFrom);
+      const existingEnd = new Date(booking.dateTo);
+      return checkStart < existingEnd && checkEnd > existingStart;
+    });
+
+    if (hasConflict) {
+      toast.error("Selected dates overlap with an existing booking.");
+      return;
+    }
+
+    // 3. Try booking with better error handling
     try {
       await createBooking({
         venueId: venue.id,
-        dateFrom: new Date(checkIn).toISOString(),
-        dateTo: new Date(checkOut).toISOString(),
-        guests: parseInt(guests, 10),
+        dateFrom: checkStart.toISOString(),
+        dateTo: checkEnd.toISOString(),
+        guests: guestsNum,
       });
       toast.success("Booking successful! 🎉");
       navigate("/customer");
     } catch (err) {
-      toast.error(err.message || "Booking failed");
+      if (err.message?.includes("409")) {
+        toast.error("These dates are already booked. Please pick different dates.");
+      } else {
+        toast.error(err.message || "Booking failed");
+      }
     }
   };
 
@@ -74,7 +102,7 @@ export default function BookingConfirmPage() {
           </ul>
         </div>
 
-        {/* Price Breakdown & Confirm */}
+        {/* Price & Confirm */}
         <div className="border rounded-lg shadow p-6 space-y-6 bg-white">
           <h3 className="text-lg font-semibold border-b pb-2">Price Breakdown</h3>
           <div className="space-y-2 text-sm text-gray-800">
