@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { getVenueById } from "../../services/venueService";
 import placeholderImage from "../../assets/placeholder.png";
 import DatePicker from "react-datepicker";
@@ -18,16 +19,13 @@ export default function BookVenuePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const initForm = () => {
-      const inDate = searchParams.get("checkIn");
-      const outDate = searchParams.get("checkOut");
-      const guestsParam = searchParams.get("guests");
+    const inDate = searchParams.get("checkIn");
+    const outDate = searchParams.get("checkOut");
+    const guestsParam = searchParams.get("guests");
 
-      if (inDate) setCheckIn(new Date(inDate));
-      if (outDate) setCheckOut(new Date(outDate));
-      if (guestsParam) setGuests(parseInt(guestsParam));
-    };
-    initForm();
+    if (inDate) setCheckIn(new Date(inDate));
+    if (outDate) setCheckOut(new Date(outDate));
+    if (guestsParam) setGuests(parseInt(guestsParam));
   }, [searchParams]);
 
   useEffect(() => {
@@ -35,8 +33,7 @@ export default function BookVenuePage() {
       try {
         const data = await getVenueById(id);
         setVenue(data);
-      // eslint-disable-next-line no-unused-vars
-      } catch (err) {
+      } catch {
         setError("Failed to load venue data.");
       } finally {
         setLoading(false);
@@ -55,6 +52,7 @@ export default function BookVenuePage() {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     if (checkIn < today || checkOut <= checkIn) {
       return setError("Please choose valid dates.");
     }
@@ -69,16 +67,21 @@ export default function BookVenuePage() {
     });
   };
 
-  if (loading) return <p className="text-center py-8">Loading...</p>;
-  if (!venue) return <p className="text-center text-red-600">Venue not found.</p>;
+  if (loading) return <p className="text-center py-8" role="status">Loading...</p>;
+  if (!venue) return <p className="text-center text-red-600" role="alert">Venue not found.</p>;
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10">
+      <Helmet>
+        <title>Book {venue.name} | BookScape</title>
+        <meta name="description" content={`Book your stay at ${venue.name} in ${venue.location?.city}, ${venue.location?.country}.`} />
+      </Helmet>
+
       <div className="grid md:grid-cols-2 gap-6 items-start">
         <div>
           <img
             src={venue.media?.[0]?.url || placeholderImage}
-            alt={venue.name}
+            alt={venue.media?.[0]?.alt || venue.name}
             className="rounded-xl w-full h-64 object-cover"
           />
           <h1 className="text-2xl font-bold mt-4">{venue.name}</h1>
@@ -90,11 +93,13 @@ export default function BookVenuePage() {
           </p>
         </div>
 
-        <form onSubmit={handleReview} className="space-y-5 border p-6 rounded-lg shadow">
+        <form onSubmit={handleReview} className="space-y-5 border p-6 rounded-lg shadow" aria-label="Booking form">
           <h2 className="text-lg font-semibold">Book this venue</h2>
+
           <div>
-            <label className="block text-sm font-medium">Check-in</label>
+            <label htmlFor="check-in" className="block text-sm font-medium">Check-in</label>
             <DatePicker
+              id="check-in"
               selected={checkIn}
               onChange={setCheckIn}
               selectsStart
@@ -106,8 +111,9 @@ export default function BookVenuePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium">Check-out</label>
+            <label htmlFor="check-out" className="block text-sm font-medium">Check-out</label>
             <DatePicker
+              id="check-out"
               selected={checkOut}
               onChange={setCheckOut}
               selectsEnd
@@ -120,8 +126,9 @@ export default function BookVenuePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium">Guests</label>
+            <label htmlFor="guests" className="block text-sm font-medium">Guests</label>
             <input
+              id="guests"
               type="number"
               min={1}
               max={venue.maxGuests}
@@ -131,7 +138,7 @@ export default function BookVenuePage() {
             />
           </div>
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && <p className="text-red-600 text-sm" role="alert">{error}</p>}
 
           <button
             type="submit"

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getVenuesByProfile, deleteVenue } from "../../services/venueService";
@@ -29,7 +30,7 @@ export default function ManagerDashboard() {
     fetchVenues();
   }, [user, authLoading]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
     setDeletingVenueId(id);
   };
 
@@ -45,15 +46,29 @@ export default function ManagerDashboard() {
   };
 
   if (authLoading || loading) {
-    return <p className="text-center py-8">Loading your venues...</p>;
+    return (
+      <p className="text-center py-8 flex items-center justify-center gap-2" role="status">
+        <span className="animate-spin h-5 w-5 border-2 border-gray-700 border-t-transparent rounded-full"></span>
+        Loading your venues...
+      </p>
+    );
   }
 
   if (error) {
-    return <p className="text-center py-8 text-red-600">{error}</p>;
+    return (
+      <p className="text-center py-8 text-red-600" role="alert">
+        {error}
+      </p>
+    );
   }
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
+      <Helmet>
+        <title>BookScape | Your Venues</title>
+        <meta name="description" content="Manage your listed venues and keep track of bookings on BookScape." />
+      </Helmet>
+
       <section className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">
           Your Venues ({venues.length})
@@ -77,10 +92,19 @@ export default function ManagerDashboard() {
       )}
 
       {deletingVenueId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-60">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-60"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-venue-title"
+        >
           <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-xl text-center">
-            <h2 className="text-lg font-semibold text-gray-900">Delete Venue?</h2>
-            <p className="text-gray-600 text-sm mt-2 mb-4">This action cannot be undone.</p>
+            <h2 id="delete-venue-title" className="text-lg font-semibold text-gray-900">
+              Delete Venue?
+            </h2>
+            <p className="text-gray-600 text-sm mt-2 mb-4">
+              This action cannot be undone.
+            </p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setDeletingVenueId(null)}

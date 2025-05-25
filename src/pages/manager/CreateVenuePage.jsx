@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { useAuth } from "../../context/AuthContext";
 import { createVenue } from "../../services/venueService";
 
@@ -90,6 +91,11 @@ const CreateVenueForm = () => {
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-10">
+      <Helmet>
+        <title>BookScape | Create Venue</title>
+        <meta name="description" content="List your new venue on BookScape. Fill in the venue details and start accepting bookings." />
+      </Helmet>
+
       <h1 className="text-2xl font-bold mb-6">Create a New Venue</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6" aria-label="Create venue form">

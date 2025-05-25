@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getVenueById, updateVenue } from "../../services/venueService";
@@ -44,6 +45,7 @@ export default function EditVenueForm() {
         setLoading(false);
       }
     };
+
     loadVenue();
   }, [id]);
 
@@ -103,15 +105,29 @@ export default function EditVenueForm() {
     }
   };
 
-  if (loading) return <p className="text-center py-10">Loading...</p>;
-  if (error) return <p className="text-center text-red-600">{error}</p>;
+  if (loading) {
+    return (
+      <p className="text-center py-10 flex items-center justify-center gap-2" role="status">
+        <span className="animate-spin h-5 w-5 border-2 border-gray-700 border-t-transparent rounded-full"></span>
+        Loading venue data...
+      </p>
+    );
+  }
+
+  if (error) {
+    return <p className="text-center text-red-600" role="alert">{error}</p>;
+  }
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-10">
+      <Helmet>
+        <title>BookScape | Edit Venue</title>
+        <meta name="description" content="Edit your venue's details and availability on BookScape." />
+      </Helmet>
+
       <h1 className="text-2xl font-bold mb-6">Edit Venue</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6" aria-label="Edit venue form">
-        {/* Name */}
         <input
           name="name"
           value={form.name}
@@ -121,7 +137,6 @@ export default function EditVenueForm() {
           placeholder="Venue Name"
         />
 
-        {/* Description */}
         <textarea
           name="description"
           value={form.description}
@@ -132,7 +147,6 @@ export default function EditVenueForm() {
           placeholder="Description"
         />
 
-        {/* Price and Max Guests */}
         <div className="grid grid-cols-2 gap-4">
           <input
             type="number"
@@ -156,7 +170,6 @@ export default function EditVenueForm() {
           />
         </div>
 
-        {/* Media */}
         <input
           name="mediaUrl"
           value={form.mediaUrl}
@@ -172,7 +185,6 @@ export default function EditVenueForm() {
           placeholder="Image Alt"
         />
 
-        {/* Meta */}
         <fieldset>
           <legend className="font-medium mb-2">Amenities</legend>
           <div className="flex gap-4 flex-wrap">
@@ -190,7 +202,6 @@ export default function EditVenueForm() {
           </div>
         </fieldset>
 
-        {/* Location */}
         <fieldset>
           <legend className="font-medium mb-2">Location (optional)</legend>
           <div className="grid grid-cols-2 gap-4">

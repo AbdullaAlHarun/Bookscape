@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { loginUser } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
@@ -10,6 +10,40 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    document.title = "BookScape | Login";
+    
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) {
+      desc.setAttribute("content", "Login to access your BookScape dashboard and manage your bookings or venues.");
+    } else {
+      const meta = document.createElement("meta");
+      meta.name = "description";
+      meta.content = "Login to access your BookScape dashboard and manage your bookings or venues.";
+      document.head.appendChild(meta);
+    }
+
+   
+    const setMetaTag = (property, content) => {
+      let tag = document.querySelector(`meta[property='${property}']`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute("property", property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+
+    setMetaTag("og:title", "BookScape | Login");
+    setMetaTag("og:description", "Login to your BookScape account and manage your holidays.");
+    setMetaTag("og:type", "website");
+    setMetaTag("og:image", "/favicon.png");
+
+    setMetaTag("twitter:card", "summary");
+    setMetaTag("twitter:title", "BookScape | Login");
+    setMetaTag("twitter:description", "Login to your BookScape account and manage your holidays.");
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

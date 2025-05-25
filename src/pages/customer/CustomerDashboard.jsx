@@ -10,6 +10,21 @@ export default function CustomerDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+ 
+  useEffect(() => {
+    document.title = "BookScape | My Bookings";
+
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) {
+      desc.setAttribute("content", "Manage and view your upcoming and past bookings with BookScape.");
+    } else {
+      const meta = document.createElement("meta");
+      meta.name = "description";
+      meta.content = "Manage and view your upcoming and past bookings with BookScape.";
+      document.head.appendChild(meta);
+    }
+  }, []);
+
   useEffect(() => {
     const fetchBookings = async () => {
       try {

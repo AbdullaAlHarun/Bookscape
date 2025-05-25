@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
@@ -14,6 +14,21 @@ const Register = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+ 
+  useEffect(() => {
+    document.title = "BookScape | Register";
+
+    const description = document.querySelector('meta[name="description"]');
+    if (description) {
+      description.setAttribute("content", "Create your BookScape account and start booking or managing holiday venues.");
+    } else {
+      const meta = document.createElement("meta");
+      meta.name = "description";
+      meta.content = "Create your BookScape account and start booking or managing holiday venues.";
+      document.head.appendChild(meta);
+    }
+  }, []);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({
@@ -27,7 +42,6 @@ const Register = () => {
     setError("");
     setSuccess("");
 
-    // Email validation
     if (!form.email.toLowerCase().endsWith("@stud.noroff.no")) {
       setError("Email must end with @stud.noroff.no");
       return;
@@ -54,7 +68,6 @@ const Register = () => {
       setSuccess("🎉 Registration successful! Redirecting to login...");
       setForm({ name: "", email: "", password: "", venueManager: false });
 
-      // Optional: auto-redirect to login
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       setError(err.message);
@@ -83,9 +96,7 @@ const Register = () => {
             </div>
           )}
 
-          <label htmlFor="name" className="block font-medium mb-1">
-            Username
-          </label>
+          <label htmlFor="name" className="block font-medium mb-1">Username</label>
           <input
             id="name"
             name="name"
@@ -95,9 +106,7 @@ const Register = () => {
             className="w-full mb-4 p-2 border border-black rounded"
           />
 
-          <label htmlFor="email" className="block font-medium mb-1">
-            Email
-          </label>
+          <label htmlFor="email" className="block font-medium mb-1">Email</label>
           <input
             id="email"
             name="email"
@@ -112,9 +121,7 @@ const Register = () => {
             Must use a <strong>@stud.noroff.no</strong> email.
           </p>
 
-          <label htmlFor="password" className="block font-medium mb-1">
-            Password
-          </label>
+          <label htmlFor="password" className="block font-medium mb-1">Password</label>
           <input
             id="password"
             name="password"

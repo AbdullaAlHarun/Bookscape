@@ -34,13 +34,22 @@ const VenueGrid = () => {
   const loadMore = () => {
     setIsLoadingMore(true);
     loadVenues(page + 1);
+    setTimeout(() => {
+      document.getElementById("venue-grid")?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
 
   const allLoaded = totalCount !== null && venues.length >= totalCount;
 
   return (
     <>
-      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+      <section
+        id="venue-grid"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8"
+        role="status"
+        aria-busy={loading}
+        aria-live="polite"
+      >
         {loading
           ? Array.from({ length: 8 }).map((_, i) => <VenueCardSkeleton key={i} />)
           : venues.map((venue, index) => (
@@ -54,6 +63,7 @@ const VenueGrid = () => {
             onClick={loadMore}
             disabled={isLoadingMore}
             className="bg-orange-500 text-white px-6 py-3 rounded-xl shadow hover:bg-orange-600 transition"
+            aria-label="Load more venues"
           >
             {isLoadingMore ? "Loading..." : "Load More"}
           </button>
