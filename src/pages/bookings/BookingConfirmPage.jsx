@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import placeholderImage from "../../assets/placeholder.png";
@@ -26,14 +27,11 @@ export default function BookingConfirmPage() {
 
   const handleBooking = async () => {
     const guestsNum = parseInt(guests, 10);
-
-    // 1. Validate guest count
     if (guestsNum > venue.maxGuests) {
       toast.error(`This venue allows up to ${venue.maxGuests} guests.`);
       return;
     }
 
-    // 2. Validate date conflicts
     const checkStart = new Date(checkIn);
     const checkEnd = new Date(checkOut);
 
@@ -48,7 +46,6 @@ export default function BookingConfirmPage() {
       return;
     }
 
-    // 3. Try booking with better error handling
     try {
       await createBooking({
         venueId: venue.id,
@@ -69,11 +66,19 @@ export default function BookingConfirmPage() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-10">
+      <Helmet>
+        <title>BookScape | Confirm Booking</title>
+        <meta
+          name="description"
+          content={`Confirm your stay at ${venue.name} from ${new Date(checkIn).toLocaleDateString()} to ${new Date(checkOut).toLocaleDateString()}.`}
+        />
+      </Helmet>
+
       <h1 className="text-3xl font-bold mb-8">Review & Confirm Your Booking</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Venue Info */}
-        <div className="border rounded-lg shadow p-6 space-y-4">
+        <section className="border rounded-lg shadow p-6 space-y-4" aria-label="Venue information">
           <img
             src={venue.media?.[0]?.url || placeholderImage}
             alt={venue.media?.[0]?.alt || venue.name}
@@ -85,35 +90,19 @@ export default function BookingConfirmPage() {
             {venue.location?.country}
           </p>
           <ul className="text-sm text-gray-700 space-y-1 pt-2">
-            <li>
-              <strong>Check-in:</strong>{" "}
-              {new Date(checkIn).toLocaleDateString()}
-            </li>
-            <li>
-              <strong>Check-out:</strong>{" "}
-              {new Date(checkOut).toLocaleDateString()}
-            </li>
-            <li>
-              <strong>Guests:</strong> {guests}
-            </li>
-            <li>
-              <strong>Nights:</strong> {nights}
-            </li>
+            <li><strong>Check-in:</strong> {new Date(checkIn).toLocaleDateString()}</li>
+            <li><strong>Check-out:</strong> {new Date(checkOut).toLocaleDateString()}</li>
+            <li><strong>Guests:</strong> {guests}</li>
+            <li><strong>Nights:</strong> {nights}</li>
           </ul>
-        </div>
+        </section>
 
-        {/* Price & Confirm */}
-        <div className="border rounded-lg shadow p-6 space-y-6 bg-white">
+        {/* Price Summary */}
+        <section className="border rounded-lg shadow p-6 space-y-6 bg-white" aria-label="Price summary">
           <h3 className="text-lg font-semibold border-b pb-2">Price Breakdown</h3>
           <div className="space-y-2 text-sm text-gray-800">
-            <p>
-              💲 {venue.price} × {nights} nights ={" "}
-              <span className="font-medium">${subtotal.toFixed(2)}</span>
-            </p>
-            <p>
-              🔧 Service Fee (10%) ={" "}
-              <span className="font-medium">${serviceFee.toFixed(2)}</span>
-            </p>
+            <p>💲 {venue.price} × {nights} nights = <strong>${subtotal.toFixed(2)}</strong></p>
+            <p>🔧 Service Fee (10%) = <strong>${serviceFee.toFixed(2)}</strong></p>
           </div>
 
           <div className="border-t pt-4 text-xl font-bold text-gray-900">
@@ -126,7 +115,7 @@ export default function BookingConfirmPage() {
           >
             Confirm Booking
           </button>
-        </div>
+        </section>
       </div>
     </main>
   );

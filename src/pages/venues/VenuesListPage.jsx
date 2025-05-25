@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAllVenuesWithBookings } from "../../services/venueService";
 import VenueCard from "../../components/venues/VenueCard";
+import VenueCardSkeleton from "../../components/venues/VenueCardSkeleton";
 
 export default function VenuesListPage() {
   const [venues, setVenues] = useState([]);
@@ -94,7 +95,11 @@ export default function VenuesListPage() {
       </div>
 
       {loading ? (
-        <p>Loading venues...</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <VenueCardSkeleton key={i} />
+          ))}
+        </div>
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : venues.length === 0 ? (

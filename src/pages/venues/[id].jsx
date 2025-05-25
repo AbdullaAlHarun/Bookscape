@@ -22,20 +22,17 @@ export default function VenueDetailPage() {
         const data = await getVenueById(id);
         setVenue(data);
 
-        // Set document title + meta description
+        // Set dynamic title + meta
         document.title = `${data.name} | BookScape`;
 
-        const meta = document.querySelector('meta[name="description"]');
-        const newDescription = data.description?.slice(0, 150) || "Venue details on BookScape.";
-
-        if (meta) {
-          meta.setAttribute("content", newDescription);
-        } else {
-          const metaTag = document.createElement("meta");
-          metaTag.name = "description";
-          metaTag.content = newDescription;
-          document.head.appendChild(metaTag);
+        const desc = data.description?.slice(0, 150) || "Venue details on BookScape.";
+        let meta = document.head.querySelector('meta[name="description"]');
+        if (!meta) {
+          meta = document.createElement("meta");
+          meta.name = "description";
+          document.head.appendChild(meta);
         }
+        meta.setAttribute("content", desc);
       } catch (error) {
         console.error("Failed to fetch venue details", error);
       } finally {
@@ -47,13 +44,11 @@ export default function VenueDetailPage() {
   }, [id]);
 
   if (loading) {
-    return <p className="text-center py-8">Loading venue details...</p>;
+    return <p className="text-center py-8" role="status">Loading venue details...</p>;
   }
 
   if (!venue) {
-    return (
-      <p className="text-center py-8 text-red-500">Venue not found.</p>
-    );
+    return <p className="text-center py-8 text-red-500" role="alert">Venue not found.</p>;
   }
 
   const {
@@ -87,15 +82,22 @@ export default function VenueDetailPage() {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* Left Column */}
           <div className="space-y-4">
-            <p className="text-gray-700 text-base leading-relaxed">
-              {description}
-            </p>
+            <p className="text-gray-700 text-base leading-relaxed">{description}</p>
 
             <ul className="text-sm text-gray-600 space-y-1">
-              <li><strong>📍 Address:</strong> {location?.address}, {location?.city}, {location?.country}</li>
-              <li><strong>🌍 Continent:</strong> {location?.continent}</li>
-              <li><strong>📫 Zip:</strong> {location?.zip}</li>
+              {location?.address && (
+                <li>
+                  <strong>📍 Address:</strong> {location.address}, {location.city}, {location.country}
+                </li>
+              )}
+              {location?.continent && (
+                <li><strong>🌍 Continent:</strong> {location.continent}</li>
+              )}
+              {location?.zip && (
+                <li><strong>📫 Zip:</strong> {location.zip}</li>
+              )}
             </ul>
 
             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-700 mt-4">
@@ -111,11 +113,10 @@ export default function VenueDetailPage() {
             </div>
           </div>
 
+          {/* Right Column */}
           <div className="space-y-6">
             <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                Amenities
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">Amenities</h2>
               <div className="flex flex-wrap gap-4 text-gray-700 text-base">
                 {meta?.wifi && <span className="flex items-center gap-2"><FaWifi /> WiFi</span>}
                 {meta?.parking && <span className="flex items-center gap-2"><FaParking /> Parking</span>}

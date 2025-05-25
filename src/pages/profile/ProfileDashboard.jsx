@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useAuth } from "../../context/AuthContext";
 import { updateUserAvatar } from "../../services/profileService";
 import { uploadImageToImgBB } from "../../services/profileUploader";
@@ -19,12 +20,10 @@ export default function ProfileDashboard() {
 
     try {
       setStatus("Uploading...");
-
       const imageUrl = await uploadImageToImgBB(selectedFile);
       const updated = await updateUserAvatar(user.name, imageUrl);
       updateAvatar(updated);
-
-      setStatus("✅ Avatar updated!");
+      setStatus(" Avatar updated!");
     } catch (error) {
       setStatus("❌ Failed: " + error.message);
     }
@@ -32,6 +31,11 @@ export default function ProfileDashboard() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
+      <Helmet>
+        <title>BookScape | Your Profile</title>
+        <meta name="description" content="Manage your BookScape profile, update your avatar, and view your bookings or venues." />
+      </Helmet>
+
       <section
         className="bg-[#fff8f4] p-6 rounded-2xl shadow-md flex flex-col md:flex-row items-center md:items-start gap-8"
         aria-labelledby="profile-info-heading"
@@ -79,7 +83,7 @@ export default function ProfileDashboard() {
             >
               Upload Avatar
             </button>
-            {status && <p className="text-sm mt-2 text-gray-600">{status}</p>}
+            {status && <p className="text-sm mt-2 text-gray-600" role="status">{status}</p>}
           </form>
         </div>
       </section>
