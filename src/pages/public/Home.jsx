@@ -1,9 +1,24 @@
+import { useEffect } from "react";
 import headerBg from '../../assets/header_bg.svg';
 import Hero from '../../components/Home/Hero';
 import SearchBar from '../../components/home/SearchBar';
 import VenueGrid from "../../components/venues/VenueGrid";
 
 export default function Home() {
+  useEffect(() => {
+    document.title = "BookScape | Home";
+    
+    const descriptionMeta = document.querySelector('meta[name="description"]');
+    if (descriptionMeta) {
+      descriptionMeta.setAttribute("content", "Discover and book the perfect venue for your next holiday or event. Explore trusted and reviewed venues across the globe with BookScape.");
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = "description";
+      meta.content = "Discover and book the perfect venue for your next holiday or event. Explore trusted and reviewed venues across the globe with BookScape.";
+      document.head.appendChild(meta);
+    }
+  }, []);
+
   return (
     <>
       <section

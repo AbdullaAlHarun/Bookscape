@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getVenuesByProfile, deleteVenue } from "../../services/venueService";
@@ -54,6 +55,11 @@ export default function ManagerDashboard() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
+      <Helmet>
+        <title>BookScape | Your Venues</title>
+        <meta name="description" content="Manage your listed venues and keep track of bookings on BookScape." />
+      </Helmet>
+
       <section className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">
           Your Venues ({venues.length})

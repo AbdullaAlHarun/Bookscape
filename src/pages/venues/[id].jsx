@@ -21,6 +21,21 @@ export default function VenueDetailPage() {
       try {
         const data = await getVenueById(id);
         setVenue(data);
+
+        // Set document title + meta description
+        document.title = `${data.name} | BookScape`;
+
+        const meta = document.querySelector('meta[name="description"]');
+        const newDescription = data.description?.slice(0, 150) || "Venue details on BookScape.";
+
+        if (meta) {
+          meta.setAttribute("content", newDescription);
+        } else {
+          const metaTag = document.createElement("meta");
+          metaTag.name = "description";
+          metaTag.content = newDescription;
+          document.head.appendChild(metaTag);
+        }
       } catch (error) {
         console.error("Failed to fetch venue details", error);
       } finally {
@@ -72,7 +87,6 @@ export default function VenueDetailPage() {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          {/* Left Column */}
           <div className="space-y-4">
             <p className="text-gray-700 text-base leading-relaxed">
               {description}
@@ -97,43 +111,22 @@ export default function VenueDetailPage() {
             </div>
           </div>
 
-          {/* Right Column */}
           <div className="space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-800 mb-2">
                 Amenities
               </h2>
               <div className="flex flex-wrap gap-4 text-gray-700 text-base">
-                {meta?.wifi && (
-                  <span className="flex items-center gap-2">
-                    <FaWifi /> WiFi
-                  </span>
+                {meta?.wifi && <span className="flex items-center gap-2"><FaWifi /> WiFi</span>}
+                {meta?.parking && <span className="flex items-center gap-2"><FaParking /> Parking</span>}
+                {meta?.pets && <span className="flex items-center gap-2"><FaPaw /> Pets Allowed</span>}
+                {meta?.breakfast && <span className="flex items-center gap-2"><FaCoffee /> Breakfast</span>}
+                {!meta?.wifi && !meta?.parking && !meta?.pets && !meta?.breakfast && (
+                  <span>No amenities listed.</span>
                 )}
-                {meta?.parking && (
-                  <span className="flex items-center gap-2">
-                    <FaParking /> Parking
-                  </span>
-                )}
-                {meta?.pets && (
-                  <span className="flex items-center gap-2">
-                    <FaPaw /> Pets Allowed
-                  </span>
-                )}
-                {meta?.breakfast && (
-                  <span className="flex items-center gap-2">
-                    <FaCoffee /> Breakfast
-                  </span>
-                )}
-                {!meta?.wifi &&
-                  !meta?.parking &&
-                  !meta?.pets &&
-                  !meta?.breakfast && (
-                    <span>No amenities listed.</span>
-                  )}
               </div>
             </div>
 
-            {/* 👉 Book Now Button */}
             <button
               onClick={() => navigate(`/venues/${id}/book`)}
               className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-3 rounded-md transition"
