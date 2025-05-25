@@ -7,7 +7,7 @@ A modern, responsive accommodation booking platform built with React and Tailwin
 
 ## 🌐 Live Demo
 
-🔗 [View Deployed Project](https://your-deployment-url.com)  
+🔗 [View Deployed Project](https://book-scape-app.netlify.app/)  
 <!-- Replace above link with your actual deployment -->
 
 ---
