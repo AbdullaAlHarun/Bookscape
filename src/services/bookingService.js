@@ -55,3 +55,36 @@ export async function getAllBookings() {
 
   return json.data;
 }
+
+// Get all bookings across all pages (for manager dashboard only)
+export async function getAllBookingsPaginated() {
+  const token = JSON.parse(localStorage.getItem("user"))?.accessToken;
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+    "X-Noroff-API-Key": API_KEY,
+  };
+
+  let page = 1;
+  const limit = 100;
+  let allBookings = [];
+  let isLastPage = false;
+
+  while (!isLastPage) {
+    const res = await fetch(
+      `${API_BASE}/holidaze/bookings?page=${page}&limit=${limit}&_venue=true&_customer=true`,
+      { headers }
+    );
+
+    const json = await res.json();
+    if (!res.ok) {
+      throw new Error(json.errors?.[0]?.message || "Failed to fetch paginated bookings");
+    }
+
+    allBookings = [...allBookings, ...json.data];
+    isLastPage = json.meta?.isLastPage || json.data.length === 0;
+    page++;
+  }
+
+  return allBookings;
+}
