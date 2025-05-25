@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getVenuesByProfile, deleteVenue } from "../../services/venueService";
+import { getAllBookingsPaginated } from "../../services/bookingService";
 import VenueCard from "../../components/venues/VenueCard";
 
 export default function ManagerDashboard() {
@@ -10,27 +11,32 @@ export default function ManagerDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingVenueId, setDeletingVenueId] = useState(null);
+  const [allBookings, setAllBookings] = useState([]);
 
   useEffect(() => {
-    document.title = "BookScape | Your Venues"; 
+    document.title = "BookScape | Your Venues";
   }, []);
 
   useEffect(() => {
     if (!user || authLoading) return;
 
-    const fetchVenues = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getVenuesByProfile(user.name);
-        setVenues(data);
+        const [venuesData, bookingsData] = await Promise.all([
+          getVenuesByProfile(user.name),
+          getAllBookingsPaginated(),
+        ]);
+        setVenues(venuesData);
+        setAllBookings(bookingsData);
       // eslint-disable-next-line no-unused-vars
       } catch (err) {
-        setError("Failed to load your venues");
+        setError("Failed to load your venues or bookings");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchVenues();
+    fetchData();
   }, [user, authLoading]);
 
   const handleDelete = (id) => {
@@ -66,14 +72,12 @@ export default function ManagerDashboard() {
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-10">
-      <section className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Your Venues ({venues.length})
-        </h1>
+    <main className="max-w-7xl mx-auto px-4 py-10">
+      <section className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Your Venues ({venues.length})</h1>
         <Link
           to="/manager/create"
-          className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
+          className="bg-[#ff4123] text-white px-6 py-2 rounded hover:bg-[#e1371c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff4123]"
         >
           + Create New Venue
         </Link>
@@ -82,16 +86,40 @@ export default function ManagerDashboard() {
       {venues.length === 0 ? (
         <p className="text-gray-600">You haven’t created any venues yet.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {venues.map((venue) => (
-            <VenueCard key={venue.id} venue={venue} onDelete={handleDelete} />
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {venues.map((venue) => {
+            const venueBookings = allBookings.filter(
+              (booking) => booking.venue?.id === venue.id
+            );
+
+            return (
+              <div key={venue.id} className="bg-white border rounded-xl shadow-md p-4">
+                <VenueCard venue={venue} onDelete={handleDelete} />
+
+                <div className="mt-4 text-sm bg-gray-50 border border-gray-200 rounded-lg p-3" aria-labelledby={`venue-${venue.id}-bookings`}>
+                  <h3 id={`venue-${venue.id}-bookings`} className="font-semibold text-gray-800 mb-2">📅 Bookings:</h3>
+                  {venueBookings.length === 0 ? (
+                    <p className="text-gray-500 italic">No bookings yet.</p>
+                  ) : (
+                    <ul className="space-y-1">
+                      {venueBookings.map((b) => (
+                        <li key={b.id} className="flex justify-between text-gray-700">
+                          <span>{new Date(b.dateFrom).toLocaleDateString()} → {new Date(b.dateTo).toLocaleDateString()}</span>
+                          <span className="text-xs text-gray-500">{b.guests} guest{b.guests > 1 ? 's' : ''}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
       {deletingVenueId && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-60"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-venue-title"
