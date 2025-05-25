@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Helmet } from "react-helmet-async";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { updateUserAvatar } from "../../services/profileService";
 import { uploadImageToImgBB } from "../../services/profileUploader";
@@ -10,6 +9,10 @@ export default function ProfileDashboard() {
   const { user, updateAvatar } = useAuth();
   const [selectedFile, setSelectedFile] = useState(null);
   const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    document.title = "BookScape | Your Profile"; 
+  }, []);
 
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files?.[0]);
@@ -31,11 +34,6 @@ export default function ProfileDashboard() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
-      <Helmet>
-        <title>BookScape | Your Profile</title>
-        <meta name="description" content="Manage your BookScape profile, update your avatar, and view your bookings or venues." />
-      </Helmet>
-
       <section
         className="bg-[#fff8f4] p-6 rounded-2xl shadow-md flex flex-col md:flex-row items-center md:items-start gap-8"
         aria-labelledby="profile-info-heading"

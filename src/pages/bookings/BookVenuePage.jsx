@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { getVenueById } from "../../services/venueService";
 import placeholderImage from "../../assets/placeholder.png";
 import DatePicker from "react-datepicker";
@@ -33,6 +32,7 @@ export default function BookVenuePage() {
       try {
         const data = await getVenueById(id);
         setVenue(data);
+        document.title = `Book ${data.name} | BookScape`; 
       } catch {
         setError("Failed to load venue data.");
       } finally {
@@ -72,11 +72,6 @@ export default function BookVenuePage() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10">
-      <Helmet>
-        <title>Book {venue.name} | BookScape</title>
-        <meta name="description" content={`Book your stay at ${venue.name} in ${venue.location?.city}, ${venue.location?.country}.`} />
-      </Helmet>
-
       <div className="grid md:grid-cols-2 gap-6 items-start">
         <div>
           <img

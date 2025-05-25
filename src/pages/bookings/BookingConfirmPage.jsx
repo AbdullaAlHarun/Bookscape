@@ -1,5 +1,4 @@
-import React from "react";
-import { Helmet } from "react-helmet-async";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import placeholderImage from "../../assets/placeholder.png";
@@ -10,6 +9,14 @@ export default function BookingConfirmPage() {
   const navigate = useNavigate();
 
   const { venue, checkIn, checkOut, guests } = state || {};
+
+  useEffect(() => {
+    if (venue && checkIn && checkOut) {
+      document.title = `BookScape | Confirm Booking for ${venue.name}`;
+    } else {
+      document.title = "BookScape | Booking Error";
+    }
+  }, [venue, checkIn, checkOut]);
 
   if (!venue || !checkIn || !checkOut || !guests) {
     return (
@@ -66,14 +73,6 @@ export default function BookingConfirmPage() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-10">
-      <Helmet>
-        <title>BookScape | Confirm Booking</title>
-        <meta
-          name="description"
-          content={`Confirm your stay at ${venue.name} from ${new Date(checkIn).toLocaleDateString()} to ${new Date(checkOut).toLocaleDateString()}.`}
-        />
-      </Helmet>
-
       <h1 className="text-3xl font-bold mb-8">Review & Confirm Your Booking</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

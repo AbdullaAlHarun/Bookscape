@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getVenueById, updateVenue } from "../../services/venueService";
@@ -12,6 +11,10 @@ export default function EditVenueForm() {
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    document.title = "BookScape | Edit Venue"; // ✅ Set dynamic title
+  }, []);
 
   useEffect(() => {
     const loadVenue = async () => {
@@ -120,11 +123,6 @@ export default function EditVenueForm() {
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-10">
-      <Helmet>
-        <title>BookScape | Edit Venue</title>
-        <meta name="description" content="Edit your venue's details and availability on BookScape." />
-      </Helmet>
-
       <h1 className="text-2xl font-bold mb-6">Edit Venue</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6" aria-label="Edit venue form">
