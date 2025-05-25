@@ -45,7 +45,7 @@ const VenueGrid = () => {
     <>
       <section
         id="venue-grid"
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8"
+        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 mt-8"
         role="status"
         aria-busy={loading}
         aria-live="polite"

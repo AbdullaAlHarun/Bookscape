@@ -80,12 +80,12 @@ export default function VenuesListPage() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10">
-      <div className="flex justify-between mb-6 items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4 sm:gap-0">
         <h1 className="text-2xl font-bold">Search Results</h1>
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          className="border px-3 py-2 rounded"
+          className="border px-3 py-2 rounded w-full sm:w-auto"
         >
           <option value="newest">Newest</option>
           <option value="priceLow">Price: Low to High</option>
@@ -95,7 +95,7 @@ export default function VenuesListPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <VenueCardSkeleton key={i} />
           ))}
@@ -105,7 +105,7 @@ export default function VenuesListPage() {
       ) : venues.length === 0 ? (
         <p>No venues found for your criteria.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {venues.map((v, index) => (
             <VenueCard key={`${v.id}-${index}`} venue={v} />
           ))}
