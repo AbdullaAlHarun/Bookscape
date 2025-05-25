@@ -7,16 +7,35 @@ import VenueGrid from "../../components/venues/VenueGrid";
 export default function Home() {
   useEffect(() => {
     document.title = "BookScape | Home";
-    
-    const descriptionMeta = document.querySelector('meta[name="description"]');
-    if (descriptionMeta) {
-      descriptionMeta.setAttribute("content", "Discover and book the perfect venue for your next holiday or event. Explore trusted and reviewed venues across the globe with BookScape.");
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = "description";
-      meta.content = "Discover and book the perfect venue for your next holiday or event. Explore trusted and reviewed venues across the globe with BookScape.";
-      document.head.appendChild(meta);
-    }
+
+    const metaTags = [
+      { name: "description", content: "Discover and book the perfect venue for your next holiday or event. Explore trusted and reviewed venues across the globe with BookScape." },
+      { property: "og:title", content: "BookScape | Discover Unique Stays" },
+      { property: "og:description", content: "Explore trusted and reviewed venues worldwide. Book your next adventure with BookScape." },
+      { property: "og:image", content: "/favicon-512x512.png" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "BookScape | Discover Unique Stays" },
+      { name: "twitter:description", content: "Explore trusted and reviewed venues worldwide. Book your next adventure with BookScape." },
+      { name: "twitter:image", content: "/favicon-512x512.png" },
+    ];
+
+    metaTags.forEach(tag => {
+      const selector = tag.name
+        ? `meta[name="${tag.name}"]`
+        : `meta[property="${tag.property}"]`;
+
+      let meta = document.head.querySelector(selector);
+
+      if (!meta) {
+        meta = document.createElement("meta");
+        if (tag.name) meta.setAttribute("name", tag.name);
+        if (tag.property) meta.setAttribute("property", tag.property);
+        document.head.appendChild(meta);
+      }
+
+      meta.setAttribute("content", tag.content);
+    });
   }, []);
 
   return (
