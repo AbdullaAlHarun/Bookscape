@@ -10,7 +10,6 @@ export default function CustomerDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
- 
   useEffect(() => {
     document.title = "BookScape | My Bookings";
 
@@ -54,18 +53,17 @@ export default function CustomerDashboard() {
         </p>
       </header>
 
-      {loading && <p role="status">Loading bookings...</p>}
-      {error && <p className="text-red-600" role="alert">{error}</p>}
+      {loading && <p className="text-center text-gray-600" role="status">Loading bookings...</p>}
+      {error && <p className="text-center text-red-600" role="alert">{error}</p>}
 
       {bookings.length > 0 ? (
         <section
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6"
           aria-label="Bookings list"
         >
           {bookings.map((booking) => {
             const nights =
-              (new Date(booking.dateTo) - new Date(booking.dateFrom)) /
-              (1000 * 60 * 60 * 24);
+              (new Date(booking.dateTo) - new Date(booking.dateFrom)) / (1000 * 60 * 60 * 24);
             const totalPrice = nights * (booking.venue?.price || 0);
 
             return (

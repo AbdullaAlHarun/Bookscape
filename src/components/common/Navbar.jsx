@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { FiMenu, FiX, FiUser } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
+import logo from "../../assets/logo.png"; 
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,13 +18,19 @@ export default function Navbar() {
   };
 
   return (
-    <header className="bg-[#fff8f4] shadow-sm border-b">
+    <header className="bg-[#fff8f4] shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="text-2xl font-bold text-[#1e1e1e]">
-            Book<span className="italic text-[#ff4123]">Scape</span>
+          {/* Logo */}
+          <Link to="/" className="flex items-center">
+            <img
+              src={logo}
+              alt="BookScape logo"
+              className="h-12 sm:h-14 w-auto"
+            />
           </Link>
 
+          {/* Desktop Menu */}
           <nav className="hidden md:flex items-center space-x-6">
             <NavLink
               to="/"
@@ -41,14 +48,14 @@ export default function Navbar() {
                 to="/manager"
                 className={({ isActive }) =>
                   `text-sm font-medium transition-colors ${
-                    isActive ? "text-[#ff4123]" : "text-[#1e1e1e] hover:text-[#ff4123]"
-                  }`
+                    isActive ? "text-[#ff4123]" : "text-[#1e1e1e] hover:text-[#ff4123]"}`
                 }
               >
                 Start Hosting
               </NavLink>
             )}
 
+            {/* Profile Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
@@ -110,6 +117,7 @@ export default function Navbar() {
             </div>
           </nav>
 
+          {/* Mobile Toggle */}
           <button
             className="md:hidden text-2xl text-[#ff4123]"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -120,6 +128,7 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-[#fff8f4] px-6 pb-6 pt-2 shadow">
           <div className="flex flex-col space-y-3">
@@ -170,10 +179,7 @@ export default function Navbar() {
                   </Link>
                   <button
                     className="block w-full text-left px-4 py-2 text-sm hover:bg-[#fff0eb]"
-                    onClick={() => {
-                      handleLogout();
-                      setMenuOpen(false);
-                    }}
+                    onClick={handleLogout}
                   >
                     Logout
                   </button>

@@ -84,7 +84,7 @@ export default function ManagerDashboard() {
       {venues.length === 0 ? (
         <p className="text-gray-600">You haven’t created any venues yet.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {venues.map((venue) => (
             <VenueCard key={venue.id} venue={venue} onDelete={handleDelete} />
           ))}

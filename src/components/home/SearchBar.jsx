@@ -12,30 +12,65 @@ export default function SearchBar() {
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
   const [guests, setGuests] = useState("1");
-  const timeoutRef = useRef(null);
 
-  // Debounced suggestion loading
+  const inputRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const fetchIdRef = useRef(0); 
+  const [suggestionLocked, setSuggestionLocked] = useState(false); 
+
+
   useEffect(() => {
-    if (location.length < 2) return setSuggestions([]);
+    if (location.length < 2 || suggestionLocked) return;
 
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(async () => {
+    const id = ++fetchIdRef.current;
+    const timeout = setTimeout(async () => {
       try {
-        const allVenues = await getAllVenuesWithBookings();
-        const fuse = new Fuse(allVenues, {
+        const venues = await getAllVenuesWithBookings();
+        const fuse = new Fuse(venues, {
           keys: ["name", "location.city", "location.country"],
           threshold: 0.3,
         });
         const results = fuse.search(location).map((r) => r.item.name);
-        setSuggestions([...new Set(results)]);
-      } catch (error) {
-        console.error("Suggestion error:", error);
-        setSuggestions([]);
+        if (fetchIdRef.current === id) {
+          setSuggestions([...new Set(results)]);
+        }
+      } catch (err) {
+        console.error("Search failed:", err);
+        if (fetchIdRef.current === id) {
+          setSuggestions([]);
+        }
       }
-    }, 300);
+    }, 250);
 
-    return () => clearTimeout(timeoutRef.current);
-  }, [location]);
+    return () => clearTimeout(timeout);
+  }, [location, suggestionLocked]);
+
+ 
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target) &&
+        !inputRef.current.contains(e.target)
+      ) {
+        setSuggestions([]);
+        setSuggestionLocked(true);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const handleSelectSuggestion = (value) => {
+    setLocation(value);
+    setSuggestions([]);
+    setSuggestionLocked(true); 
+  };
+
+  const handleInputChange = (e) => {
+    setLocation(e.target.value);
+    setSuggestionLocked(false); 
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -50,33 +85,26 @@ export default function SearchBar() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white shadow-lg rounded-xl p-6 grid md:grid-cols-5 gap-4 max-w-5xl mx-auto"
+      className="bg-white shadow-lg rounded-xl p-6 grid grid-cols-1 md:grid-cols-5 gap-4 max-w-5xl mx-auto"
     >
       {/* Location input with autosuggest */}
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <label className="block text-sm font-medium">Where to?</label>
         <input
           type="text"
+          ref={inputRef}
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          onChange={handleInputChange}
           placeholder="Search city or venue"
           className="w-full border px-3 py-2 rounded"
           autoComplete="off"
-          aria-autocomplete="list"
-          aria-controls="suggestions-list"
         />
         {suggestions.length > 0 && (
-          <ul
-            id="suggestions-list"
-            className="absolute z-10 bg-white border mt-1 w-full max-h-40 overflow-y-auto rounded shadow"
-          >
+          <ul className="absolute z-20 bg-white border mt-1 w-full max-h-40 overflow-y-auto rounded shadow">
             {suggestions.map((item, i) => (
               <li
                 key={i}
-                onMouseDown={() => {
-                  setLocation(item);
-                  setSuggestions([]);
-                }}
+                onMouseDown={() => handleSelectSuggestion(item)}
                 className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
               >
                 {item}
