@@ -20,7 +20,7 @@ const VenueGrid = () => {
   const loadVenues = async (pageToLoad) => {
     try {
       const { venues: data, totalCount } = await getVenuesPage(pageToLoad, PAGE_LIMIT);
-      setVenues(prev => [...prev, ...data]);
+      setVenues((prev) => [...prev, ...data]);
       setTotalCount(totalCount);
       setPage(pageToLoad);
     } catch (error) {
@@ -43,7 +43,9 @@ const VenueGrid = () => {
       <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
         {loading
           ? Array.from({ length: 8 }).map((_, i) => <VenueCardSkeleton key={i} />)
-          : venues.map((venue) => <VenueCard key={venue.id} venue={venue} />)}
+          : venues.map((venue, index) => (
+              <VenueCard key={`${venue.id}-${index}`} venue={venue} />
+            ))}
       </section>
 
       {!loading && !allLoaded && (

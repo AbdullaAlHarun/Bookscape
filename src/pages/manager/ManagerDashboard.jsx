@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getVenuesByProfile, deleteVenue } from "../../services/venueService";
-import { getAllBookings } from "../../services/bookingService";
 import VenueCard from "../../components/venues/VenueCard";
 
 export default function ManagerDashboard() {
   const { user, loading: authLoading } = useAuth();
   const [venues, setVenues] = useState([]);
-  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingVenueId, setDeletingVenueId] = useState(null);
@@ -16,28 +14,19 @@ export default function ManagerDashboard() {
   useEffect(() => {
     if (!user || authLoading) return;
 
-    const fetchData = async () => {
+    const fetchVenues = async () => {
       try {
-        const [venuesData, bookingsData] = await Promise.all([
-          getVenuesByProfile(user.name),
-          getAllBookings("?_venue=true")
-        ]);
-
-        setVenues(venuesData);
-
-        const filteredBookings = bookingsData.filter(
-          (booking) => booking.venue?.owner?.name === user.name
-        );
-        setBookings(filteredBookings);
+        const data = await getVenuesByProfile(user.name);
+        setVenues(data);
       // eslint-disable-next-line no-unused-vars
       } catch (err) {
-        setError("Failed to load your venues or bookings");
+        setError("Failed to load your venues");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchVenues();
   }, [user, authLoading]);
 
   const handleDelete = async (id) => {
@@ -86,31 +75,6 @@ export default function ManagerDashboard() {
           ))}
         </div>
       )}
-
-      <section className="mt-12">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Upcoming Bookings at Your Venues ({bookings.length})
-        </h2>
-        {bookings.length === 0 ? (
-          <p className="text-gray-600">No upcoming bookings found.</p>
-        ) : (
-          <ul className="space-y-4">
-            {bookings.map((booking) => (
-              <li
-                key={booking.id}
-                className="border border-gray-200 p-4 rounded-lg shadow-sm bg-white"
-              >
-                <p className="font-semibold text-gray-900">
-                  {booking.venue?.name}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Check-in: {new Date(booking.dateFrom).toLocaleDateString()} | Guests: {booking.guests}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
 
       {deletingVenueId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-60">

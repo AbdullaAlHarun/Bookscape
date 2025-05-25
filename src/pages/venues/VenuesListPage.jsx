@@ -31,18 +31,18 @@ export default function VenuesListPage() {
         let filtered = results;
 
         if (location) {
-          filtered = filtered.filter(v =>
+          filtered = filtered.filter((v) =>
             (v.location?.city?.toLowerCase().includes(location)) ||
             (v.location?.country?.toLowerCase().includes(location)) ||
             (v.name?.toLowerCase().includes(location))
           );
         }
 
-        filtered = filtered.filter(v => v.maxGuests >= guests);
+        filtered = filtered.filter((v) => v.maxGuests >= guests);
 
         if (checkIn && checkOut) {
-          filtered = filtered.filter(v =>
-            v.bookings.every(b => {
+          filtered = filtered.filter((v) =>
+            v.bookings.every((b) => {
               const from = new Date(b.dateFrom);
               const to = new Date(b.dateTo);
               return to <= checkIn || from >= checkOut;
@@ -51,10 +51,18 @@ export default function VenuesListPage() {
         }
 
         switch (sort) {
-          case "priceLow": filtered.sort((a, b) => a.price - b.price); break;
-          case "priceHigh": filtered.sort((a, b) => b.price - a.price); break;
-          case "rating": filtered.sort((a, b) => b.rating - a.rating); break;
-          default: filtered.sort((a, b) => new Date(b.created) - new Date(a.created)); break;
+          case "priceLow":
+            filtered.sort((a, b) => a.price - b.price);
+            break;
+          case "priceHigh":
+            filtered.sort((a, b) => b.price - a.price);
+            break;
+          case "rating":
+            filtered.sort((a, b) => b.rating - a.rating);
+            break;
+          default:
+            filtered.sort((a, b) => new Date(b.created) - new Date(a.created));
+            break;
         }
 
         setVenues(filtered);
@@ -73,7 +81,11 @@ export default function VenuesListPage() {
     <main className="max-w-6xl mx-auto px-4 py-10">
       <div className="flex justify-between mb-6 items-center">
         <h1 className="text-2xl font-bold">Search Results</h1>
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className="border px-3 py-2 rounded">
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="border px-3 py-2 rounded"
+        >
           <option value="newest">Newest</option>
           <option value="priceLow">Price: Low to High</option>
           <option value="priceHigh">Price: High to Low</option>
@@ -89,7 +101,9 @@ export default function VenuesListPage() {
         <p>No venues found for your criteria.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {venues.map((v) => <VenueCard key={v.id} venue={v} />)}
+          {venues.map((v, index) => (
+            <VenueCard key={`${v.id}-${index}`} venue={v} />
+          ))}
         </div>
       )}
     </main>
